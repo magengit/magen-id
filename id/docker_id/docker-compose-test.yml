@@ -1,0 +1,15 @@
+version: "2"
+services:
+  magen_id_test:
+    build: .
+    image: magen_id:v1.0
+    container_name: magen_id_test
+    command: bash -c 'make test_travis > ../id_test.log 2>&1 && cat ../id_test.log'
+#    command: /bin/bash
+    ports:
+      - "5030:5030"
+    volumes:
+      - ../..:/opt/server
+  magen_mongo:
+    image: mongo:latest
+    container_name: magen_id_test_mongo

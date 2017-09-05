@@ -1,0 +1,99 @@
+slider {
+		display:     block;
+		position:    relative;
+    margin-top:   20px;
+		height:      20px;
+		width:       100%;
+	}
+	slider span.bar {
+    background: #e6e6e6;
+    display: block;
+    height: 10px;
+    width: 100%;
+    -moz-box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.3);
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+	}
+	slider span.bar.selection, slider span.bar.unselected {    
+	}
+	slider span.bar.selection {
+		background: #0FF;
+		opacity:    1;
+	}
+	slider span.bar.unselected {
+		width:      auto;
+		background: #a00;
+		opacity:    0.5;
+	}
+	slider span.pointer {
+    background: white;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: -5px;
+    touch-action: pan-y;
+    -ms-touch-action: pan-y;
+    -moz-box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+
+    -moz-border-radius: 30%;
+    -webkit-border-radius: 30%;
+    border-radius: 30%;
+	}
+	slider span.pointer.active {
+	}
+  slider span.pointer.active::after {    
+    color: #5cb85c;
+    font-size: 23px;
+    line-height: 18px;
+    left: 1.5px;
+    position: relative;
+    content: "●";
+  }
+  
+  slider span.pointer.hover::after {
+    color: #5cb85c;
+    font-size: 15px;
+    line-height: 18.5px;
+    left: 4.5px;
+    position: relative;
+    content: "●";
+  }
+  
+	slider span.bubble {
+		font-size:   0.7em;
+		line-height: 1.4em;
+		font-family: sans-serif;
+		text-align:  center;
+		text-shadow: none;
+		top:         -1.3em;
+		cursor:      pointer;
+	}
+	slider span.bubble.selection, slider span.bubble.limit {
+		top: 25%;
+	}
+	slider span.bubble.selection {
+	}
+	slider span.bubble.limit {
+	}
+	slider span.bubble.low, slider span.bubble.high {
+	}
+	
+	::-ms-tooltip {
+		display: none;
+	}
+	#slider-container {
+		-webkit-touch-callout: none;
+		-webkit-user-select:   none;
+		-khtml-user-select:    none;
+		-moz-user-select:      -moz-none;
+		-ms-user-select:       none;
+		user-select:           none;
+	}

@@ -1,0 +1,31 @@
+# run docker image using installed pkg, not source: mount /opt/svc for cfg/logs
+# ("runpkg" vs "rundev")
+version: "2"
+
+networks:
+  default:
+    external:
+      name: magen_net
+
+services:
+  magen_id_service:
+    build: .
+    image: magen_id:v1.0
+    container_name: magen_id_service
+    command: bash -c '(echo "LAUNCHING MAGEN_ID_SERVICE CONTAINER.  NOTE -- OUTPUT ALSO LOGGED UNDER DIR=~/magen_data/id, TO id.log FILE AND TO id_logs/ SUBDIRECTORY" && id_server.py --data-dir /opt/svc/data --console-log-level info --log-dir /opt/svc/id_logs) 2>&1 | tee -a /opt/svc/id.log'
+    environment:
+      - DATADOG_API_KEY
+      - DATADOG_APP_KEY
+    ports:
+      - "5030:5030"
+    volumes:
+      - ~/magen_data/id/:/opt/svc/
+    stdin_open: true
+    tty: true
+    networks:
+      - default
+  magen_mongo:
+    image: mongo:latest
+    container_name: magen_mongo
+    networks:
+      - default

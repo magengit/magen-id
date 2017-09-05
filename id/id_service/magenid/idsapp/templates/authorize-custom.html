@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block head %}
+{{ super() }}
+<style type="text/css">
+        .important { color: #336699; }
+        .magen_identity_authorize{display:none;}
+
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+<script>
+$(document).ready(function(){
+   $('#allow').click();
+});
+</script>
+    <div class="magen_identity_authorize ">
+                  <table><tr>
+                       <td width="50%"><img src="/static/images/access2.jpeg" width="100"></td>
+                       <td class="col-sm-4 access" valign="top">
+
+
+                         <form class="magen_identity_loginForm" action="/oauth/authorize" method="post">
+                          <input type="hidden" name="client_id" value="{{ client.client_id }}">
+                          <input type="hidden" name="scope" value="{{ client.default_scopes }}">
+                          <input type="hidden" name="response_type" value="{{ response_type }}">
+                          <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
+                          <div>
+                             <h4>Requested access</h4>
+                          </div>
+                          <div style="margin-top:20px;text-align:left;">
+                             {% for p in client.default_scopes%}
+             				            <p>  {{ p }}</p>
+             			           {% endfor %}
+                          </div>
+                          {% if state %}
+                          <input type="hidden" name="state" value="{{ state }}">
+                          {% endif %}
+                          {% if nonce %}
+                          <input type="hidden" name="nonce" value="{{ nonce }}">
+                          {% endif %}
+                          {% if code_challenge %}
+                          <input type="hidden" name="code_challenge" value="{{ code_challenge }}">
+                          {% endif %}
+                          {% if code_challenge_method %}
+                          <input type="hidden" name="code_challenge_method" value="{{ code_challenge_method }}">
+                          {% endif %}
+
+                          <input type="hidden" name="is_authentication" value="{{ is_authentication }}">
+
+                          <!--input type="submit" name="confirm" value="yes">
+                          <input type="submit" name="confirm" value="no"-->
+                             <div style="margin-top:120px;">
+                             <button type="submit" id="allow" name="confirm" value="yes" class="btn btn-primary">Allow</button>
+                           </div>
+
+                      </form>
+
+
+
+
+                    </td>
+                  </tr>
+
+
+                </table>
+
+			</div>
+
+{% endblock %}

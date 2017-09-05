@@ -1,0 +1,232 @@
+{
+   "users": [
+      {
+         "userId": "1",
+         "firstName": "John",
+         "lastName": "Wagner",
+         "userGroup": "finance",
+         "password": "pw",
+         "type": "manager",
+         "idp": "magen",
+         "u_groups": [
+            "finance"
+         ],
+         "lastLogin": null,
+         "roles": [
+            "manager",
+            "viewer",
+            "user"
+         ],
+         "username": "john@enterprise.com",
+         "email": "john@enterprise.com",
+         "imgSrc": "user_john_wagner.png"
+      },
+      {
+         "userId": "2",
+         "firstName": "Rod",
+         "lastName": "Johnson",
+         "userGroup": "finance",
+         "password": "pw",
+         "type": "user",
+         "idp": "sf",
+         "u_groups": [
+            "finance"
+         ],
+         "lastLogin": null,
+         "roles": [
+            "manager",
+            "viewer",
+            "user"
+         ],
+         "username": "rod@taxco.com",
+         "email": "rod@taxco.com",
+         "imgSrc": "user_rod.png"
+      },
+      {
+         "userId": "3",
+         "firstName": "clus16",
+         "lastName": "demo+user",
+         "userGroup": "finance",
+         "password": "pw",
+         "type": "user",
+         "idp": "sf",
+         "u_groups": [
+            "finance",
+            "development"
+         ],
+         "lastLogin": null,
+         "roles": [
+            "manager",
+            "viewer",
+            "user"
+         ],
+         "username": "clus16.demo+user@gmail.com",
+         "email": "clus16.demo+user@gmail.com",
+         "imgSrc": "user_asambors.png"
+      },
+      {
+         "userId": "4",
+         "firstName": "Admin",
+         "lastName": "User",
+         "userGroup": "development",
+         "password": "admin",
+         "type": "admin",
+         "idp": "magen",
+         "u_groups": [
+            "finance",
+            "development"
+         ],
+         "lastLogin": null,
+         "roles": [
+            "manager",
+            "viewer",
+            "user"
+         ],
+         "username": "admin",
+         "email": "admin@magen.com",
+         "imgSrc": "admin.png"
+      },
+      {
+         "userId": "5",
+         "firstName": "Demo",
+         "lastName": "User2",
+         "userGroup": "finance",
+         "password": "pw",
+         "type": "user",
+         "idp": "magen_box",
+         "u_groups": [
+            "finance"
+         ],
+         "lastLogin": null,
+         "roles": [
+            "manager",
+            "viewer",
+            "user"
+         ],
+         "username": "demo_user2@magen.com",
+         "email": "demo_user2@magen.com",
+         "imgSrc": "demo_user2.png"
+      },
+  {
+    "userId": "6",
+    "firstName": "Wiley",
+    "lastName": "Coyote",
+    "userGroup": "finance",
+    "password": "pw",
+    "type": "user",
+    "idp": "cisco_box",
+    "u_groups": [
+      "finance"
+    ],
+    "lastLogin": null,
+    "roles": [
+      "manager",
+      "viewer",
+      "user"
+    ],
+    "username": "wiley@acmebirdseed.com",
+    "email": "wiley@acmebirdseed.com",
+    "imgSrc": "user_wiley.png"
+  }
+   ],
+   "groups": [
+      {
+         "ug_id": "1",
+         "ug_name": "engineering"
+      },
+      {
+         "ug_id": "2",
+         "ug_name": "marketing"
+      },
+      {
+         "ug_id": "3",
+         "ug_name": "human_resource"
+      },
+      {
+         "ug_id": "4",
+         "ug_name": "finance"
+      }
+   ],
+   "connected_apps":[
+     {
+         "name": "sample_client",
+         "redirect_uris": [
+            "https://bwa.staging.magen.io/oauth/callback/",
+            "https://bwa-ce.staging.magen.io/oauth/callback/",
+            "https://bwa.dev.magen.io/oauth/callback",
+            "https://bwa-gibson.dev.magen.io/oauth/callback",
+            "https://api.dev.magen.io/oauth/callback",
+            "https://berlin.dev.magen.io/oauth/callback",
+            "http://localhost:5228/oauth/callback",
+            "https://hwa.staging.magen.io/oauth/callback/"
+         ],
+         "jwt_alg": "HS256",
+         "client_id": "RnMgyXCfK5d6G5vdwEIO44HCULMf1JUGpTlahH5x5SJ86O7zNbPiVNHvL7iA",
+         "client_secret": "q5zMIuwOiWWV97UufiRXdjFOhbWhNx",
+         "username": "admin@magen.com"
+      }
+
+         
+   ],
+
+   "sample_magen_client": {
+      "username": "admin@magen.com",
+      "device": "https://localhost:5228/oauth/callback"
+   },
+   "domain": [
+      {
+         "name": "magen.com",
+         "idp": "magen",
+         "allow": "yes"
+      },
+      {
+         "name": "taxco.com",
+         "idp": "sf",
+         "allow": "yes"
+      }
+   ],
+   "ext_idp": [
+      {
+         "name": "go",
+         "desc": "google",
+         "client_id": "your_google_client_id",
+         "client_secret": "your_google_client_secret",
+         "authz_url": "https://accounts.google.com/o/oauth2/auth",
+         "token_url": "https://accounts.google.com/o/oauth2/token",
+         "user_info_url": "https://accounts.google.com/o/oauth2/token",
+         "redirect_uri": "https://your_magen_id_service_host/oauth/ext/callback",
+         "scopes": "openid profile address",
+         "code_challenge": null,
+         "code_challenge_method": null,
+         "token_info_url": "https://www.googleapis.com/oauth2/v3/tokeninfo"
+      },
+      {
+         "name": "sf",
+         "desc": "salesforce",
+         "client_id": "your_salesforce_client_id",
+         "client_secret": "your_salesforce_client_secret",
+         "authz_url": "https://login.salesforce.com/services/oauth2/authorize",
+         "token_url": "https://login.salesforce.com/services/oauth2/token",
+         "user_info_url": "https://login.salesforce.com/services/oauth2/userinfo",
+         "redirect_uri": "https://your_magen_id_service_host/oauth/ext/callback",
+         "scopes": "openid profile address",
+         "code_challenge": null,
+         "code_challenge_method": null,
+         "token_info_url": ""
+      },
+      {
+         "name": "cisco_box",
+         "desc": "cisco box web application",
+         "client_id": "",
+         "client_secret": "",
+         "authz_url": "",
+         "token_url": "",
+         "user_info_url": "",
+         "redirect_uri": "",
+         "scopes": "",
+         "code_challenge": null,
+         "code_challenge_method": null,
+         "token_info_url": ""    
+    }
+   ]
+}

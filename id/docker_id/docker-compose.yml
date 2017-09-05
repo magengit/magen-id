@@ -1,0 +1,31 @@
+# Run docker image, mounting/running service source ("rundev" vs "runpkg")
+
+version: "2"
+
+networks:
+  default:
+    external:
+      name: magen_net
+
+services:
+  magen_id_service:
+    build: .
+    image: magen_id:v1.0
+    container_name: magen_id_service
+    command: bash -c '(echo "LAUNCHING MAGEN_ID CONTAINER.  NOTE -- OUTPUT ALSO LOGGED UNDER DIR=id/.. (WORKSPACE ROOT) TO id.log FILE AND TO id_logs/ SUBDIRECTORY" && python3 ./id_service/id_server.py --console-log-level info --log-dir ../id_logs) 2>&1 | tee -a ../id.log'
+    environment:
+      - DATADOG_API_KEY
+      - DATADOG_APP_KEY
+    ports:
+      - "5030:5030"
+    volumes:
+      - ../..:/opt/server
+    stdin_open: true
+    tty: true
+    networks:
+      - default
+  magen_mongo:
+    image: mongo:latest
+    container_name: magen_mongo
+    networks:
+      - default

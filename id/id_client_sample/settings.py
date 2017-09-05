@@ -1,0 +1,6 @@
+MAGEN_ID_HOST_URL='https://localhost'
+MAGEN_CLIENT_ID='RnMgyXCfK5d6G5vdwEIO44HCULMf1JUGpTlahH5x5SJ86O7zNbPiVNHvL7iA'
+MAGEN_CLIENT_SECRET='q5zMIuwOiWWV97UufiRXdjFOhbWhNx'
+ALG='HS256'
+CALLBACL_URL='http://localhost:5228/oauth/callback'
+USER_NAME='rod@taxco.com'

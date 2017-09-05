@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    	<meta charset="UTF-8">
+        <meta http-equiv="Cache-control" content="no-cache">
+        <meta http-equiv="Cache-control" content="no-store">
+        <meta http-equiv="Cache-control" content="proxy-revalidate">
+        <meta http-equiv="Cache-control" content="public, max-age=0">
+
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="/static/css/main.css" crossorigin="anonymous">
+    <script type="text/javascript" src="/static/js/main.js"></script>
+    <title>{% block title %}{% endblock %} - Magen Identity Service</title>
+    {% endblock %}
+</head>
+<body>
+       
+                  {% block content %}{% endblock %}
+
+
+    <div id="footer">
+
+    </div>
+</body>
+</html>

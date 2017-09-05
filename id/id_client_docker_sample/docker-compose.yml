@@ -1,0 +1,19 @@
+
+# In Order to Run Docker in interactive mode just change command (un-comment command on line 9 and
+# comment line 8
+# After saving changes in cur dir execute command:
+
+version: "2"
+services:
+  magen_id_client_sample:
+    build: .
+    image: magen_id_client_sample:v1.0
+    container_name: magen_id_client_sample
+    command: bash -c "python3 ./id_client_sample/client.py --console-log-level 'info' --log-dir 'id_client_sample_logs' 2>&1 >> server.log"
+    ports:
+      - "5228:5228"
+    volumes:
+      - ../..:/opt/server
+    stdin_open: true
+    tty: true
+

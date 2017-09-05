@@ -1,0 +1,90 @@
+html,
+body {
+height: 100%;
+/* The html and body elements cannot have any padding or margin. */
+}
+
+body {
+
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+min-height: 100%;
+height: auto !important;
+height: 100%;
+/* Negative indent footer by it's height */
+margin: 0 auto -130px;
+}
+
+/* Set the fixed height of the footer here */
+#push,
+#footer {
+min-height: 50px;
+width: 100%
+}
+#footer {
+	background: white;
+	margin-left: 0px;
+	margin-right: 15px;
+	padding: 15px 15px 0px 15px;
+	-webkit-border-top-left-radius: 0px;
+	-webkit-border-top-right-radius: 0px;
+	-moz-border-radius-topleft: 0px;
+	-moz-border-radius-topright: 0px;
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+}
+
+
+
+.nav-icon {
+	margin-right: 7px;
+	opacity: 0.6;
+}
+
+.navbar-brand:hover > .nav-icon {
+	opacity: 1;
+}
+
+.navbar-brand {
+	padding: 6px 15px 4px 15px;
+	border-right: 1px solid #888888;
+}
+
+.container {
+	width: 100%;
+}
+
+.page-content {
+	background: white;
+	margin-left: 15px;
+	margin-right: 15px;
+	padding: 15px;
+	overflow: auto;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+.page-header {
+	margin-top: 15px;
+	margin-bottom: 10px;
+}
+
+.img-thumbnail {
+	max-height: 140px;
+	max-width: 200px;
+}
+
+.right {
+	float: right;
+}
+
+.accordion-container {
+	padding-left: 0;
+	overflow: hidden;
+}
+
+.panel-body {
+	overflow: auto;
+}
