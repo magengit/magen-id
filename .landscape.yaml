@@ -1,0 +1,14 @@
+doc-warnings: false
+test-warnings: true
+strictness: veryhigh
+max-line-length: 120
+uses:
+  - flask
+autodetect: true
+ignore-paths:
+  - id/postman
+  - lib
+  - id/docs
+  - id/docker_id
+python-targets:
+  - 3
