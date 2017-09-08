@@ -1,6 +1,9 @@
 # Magen ID Service
 
 [![Build Status](https://travis-ci.org/magengit/magen-id.svg?branch=master)](https://travis-ci.org/magengit/magen-id)
+[![codecov](https://codecov.io/gh/magengit/magen-id/branch/master/graph/badge.svg)](https://codecov.io/gh/magengit/magen-id)
+[![Code Health](https://landscape.io/github/magengit/magen-id/master/landscape.svg?style=flat)](https://landscape.io/github/magengit/magen-id/master)
+
 
 Magen ID Service is a microservice responsible for authentication and authorization for users to access resources. It exposes REST API
 for managing client, user, group and token authorization.
