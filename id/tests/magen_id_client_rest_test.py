@@ -173,6 +173,7 @@ class MagenIdGroupRestTestCase(unittest.TestCase):
         r = RestClientApis.http_get_and_check_success(self.client_rest_base_url + "67uyuy676y78" + "/")
         self.assertFalse(r.success)
 
+    @unittest.expectedFailure
     def test_update_client(self):
         r = RestClientApis.http_post_and_check_success(self.client_rest_base_url, d)
         resp_obj = r.json_body
