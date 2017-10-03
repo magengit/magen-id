@@ -1,44 +1,10 @@
-from flask import Flask, url_for, session, request, jsonify,render_template
-from flask import redirect, abort
-from pymongo import MongoClient
 import uuid
-
-import datetime
-from datetime import datetime, timedelta
-
-import flask
+from datetime import timedelta
 from flask_login import LoginManager
-from flask import Flask,session, request, flash, url_for, redirect, render_template, abort ,g
-from flask_login import login_user , logout_user , current_user , login_required
-
-from bson import json_util
+from flask import Flask
 
 
 import logging
-
-from werkzeug.security import generate_password_hash
-from werkzeug.security import check_password_hash, gen_salt
-
-from urllib.parse import urlencode
-import requests
-
-
-import argparse
-# threading imports
-import socket
-import time
-import threading
-import itertools
-import sys
-import os
-import ssl
-
-from requests.auth import HTTPBasicAuth
-
-from logging.handlers import RotatingFileHandler
-import aniso8601
-from bson.json_util import loads, dumps
-from uuid import *
 
 
 

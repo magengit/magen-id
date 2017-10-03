@@ -44,9 +44,9 @@ class ClientApi(object):
         db = MagenClientDao()
         ret_obj= db.get_by_mc_id(mc_id)
         if ret_obj:
-           return True, "Client found succesfully",ret_obj
+            return True, "Client found succesfully", ret_obj
         else:
-           return False, "Client not found",None
+            return False, "Client not found", None
 
     @staticmethod
     def get_by_user_and_device_id(user,device_id):

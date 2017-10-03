@@ -392,7 +392,7 @@ class ClientDao(BaseDao):
             client.save(validate=False)
         except Exception as e:
             if 'duplicate' in e.args[0]:
-                logger.debug("oauth client %s is already exist",client.client_name)
+                logger.debug("oauth client %s already exist", client.client_name)
                 return client
             else:
                 logging.exception(e)
@@ -423,7 +423,7 @@ class ClientDao(BaseDao):
             client.save(validate=False)
         except Exception as e:
             if 'duplicate' in e.args[0]:
-                logger.debug("oauth %s  is already exist",client.client_name)
+                logger.debug("oauth client %s already exist", client.client_name)
                 return client
             else:
                 logging.exception(e)

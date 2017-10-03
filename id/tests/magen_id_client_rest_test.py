@@ -1,8 +1,5 @@
 from flask import Flask
 import unittest
-import sys
-import requests
-
 
 from id.id_service.magenid.idsapp.idsserver.lib.db.magen_client_dao import *
 from id.id_service.magenid.idsapp.idsserver.lib.db.magen_user_dao import *
@@ -110,6 +107,7 @@ empty_device_user = '''{
 
 headers = {'content-type': 'application/json', 'Accept': 'application/json'}
 
+
 class MagenIdGroupRestTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -130,7 +128,6 @@ class MagenIdGroupRestTestCase(unittest.TestCase):
         self.db.delete_all()
         self.magenUserDao.delete_all()
 
-
     def test_insert_client(self):
         r=RestClientApis.http_post_and_check_success(self.client_rest_base_url, d)
         resp_obj = r.json_body
@@ -143,11 +140,10 @@ class MagenIdGroupRestTestCase(unittest.TestCase):
         #self.assertFalse(resp_obj["response"]["success"])
 
     def test_delete_client(self):
-        r=RestClientApis.http_post_and_check_success(self.client_rest_base_url, d)
+        r = RestClientApis.http_post_and_check_success(self.client_rest_base_url, d)
         resp_obj = r.json_body
 
-
-        resp_obj = RestClientApis.http_delete_and_check_success(self.client_rest_base_url + resp_obj["response"]["mc_id"] + "/")
+        r = RestClientApis.http_delete_and_check_success(self.client_rest_base_url + resp_obj["response"]["mc_id"] + "/")
         resp_obj = r.json_body
         self.assertTrue(resp_obj["response"]["success"])
 
@@ -157,33 +153,31 @@ class MagenIdGroupRestTestCase(unittest.TestCase):
         logger.debug(resp_obj)
         self.assertFalse(resp_obj["response"]["success"])
 
-
     def test_get_all_clients(self):
-        r=RestClientApis.http_post_and_check_success(self.client_rest_base_url, d)
-        resp_obj = r.json_body
+        r = RestClientApis.http_post_and_check_success(self.client_rest_base_url, d)
+        self.assertTrue(r.success)
         r = RestClientApis.http_post_and_check_success(self.client_rest_base_url, d_1)
-        resp_obj = r.json_body
-
+        self.assertTrue(r.success)
         r = RestClientApis.http_get_and_check_success(self.server_url + "magen/id/v2/clients/")
         resp_obj_final = r.json_body
         self.assertTrue(len(resp_obj_final["response"]["clients"]["client"])==2)
 
     def test_get_client(self):
-        r=RestClientApis.http_post_and_check_success(self.client_rest_base_url, d)
+        r = RestClientApis.http_post_and_check_success(self.client_rest_base_url, d)
+        self.assertTrue(r.success)
         resp_obj = r.json_body
-        resp_obj = RestClientApis.http_get_and_check_success(self.client_rest_base_url + resp_obj["response"]["mc_id"])
-        resp_json = r.json_body
-        self.assertTrue(resp_json["response"]["success"])
+        r = RestClientApis.http_get_and_check_success(self.client_rest_base_url + resp_obj["response"]["mc_id"])
+        self.assertTrue(r.success)
 
     def test_neg_get_client(self):
         r = RestClientApis.http_get_and_check_success(self.client_rest_base_url + "67uyuy676y78" + "/")
-        resp_obj = r.json_body
-        self.assertFalse(resp_obj["response"]["success"])
-
+        self.assertFalse(r.success)
 
     def test_update_client(self):
-        r=RestClientApis.http_post_and_check_success(self.client_rest_base_url, d)
+        r = RestClientApis.http_post_and_check_success(self.client_rest_base_url, d)
         resp_obj = r.json_body
+        self.assertTrue(r.success)
+        print(resp_obj)
         up_d = '''{
             "clients": {
                 "client": [
@@ -199,10 +193,10 @@ class MagenIdGroupRestTestCase(unittest.TestCase):
             }
         }'''
 
-        resp_obj = RestClientApis.http_put_and_check_success(self.client_rest_base_url,up_d)
+        r = RestClientApis.http_put_and_check_success(self.client_rest_base_url, up_d)
         resp_obj = r.json_body
+        print(resp_obj)
         self.assertTrue(resp_obj["response"]["success"])
-
 
     def test_neg_update_client(self):
         r=RestClientApis.http_post_and_check_success(self.client_rest_base_url, d)
@@ -227,12 +221,11 @@ class MagenIdGroupRestTestCase(unittest.TestCase):
         r = RestClientApis.http_put_and_check_success(self.client_rest_base_url,up_inv_d)
         resp_obj = r.json_body
         logger.debug(resp_obj)
-        #self.assertFalse(resp_obj["response"]["success"])
+        self.assertFalse(r.success)
 
     def test_user_empty(self):
-        r=RestClientApis.http_post_and_check_success(self.client_rest_base_url, empty_device_user)
-        resp_obj = r.json_body
-        #self.assertTrue(resp_obj["response"]["success"])  
+        r = RestClientApis.http_post_and_check_success(self.client_rest_base_url, empty_device_user)
+        self.assertFalse(r.success)
 
 if __name__ == '__main__':
     unittest.main()

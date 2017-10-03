@@ -1,24 +1,13 @@
-from flask import Flask, jsonify,render_template, session
-from datetime import timedelta
-import random
-from urllib.parse import urlparse
-
 from functools import wraps
 
 from flask_login import LoginManager
-from flask import Flask,session, request, flash, url_for, redirect, render_template, abort ,make_response,g
+from flask import session, url_for, redirect, render_template ,make_response, g
 from flask_login import login_user , logout_user , current_user
 
-from id.id_service.magenid.idsapp import ids
-
 from id.id_service.magenid.idsapp.idsserver.lib.oidc.oidc_provider import OpenIdConnectProvider
-from id.id_service.magenid.idsapp.idsserver.lib.db.models.models import *
-from id.id_service.magenid.idsapp.idsserver.lib.db.dao import *
-from id.id_service.magenid.idsapp.idsserver.lib.db.magen_user_dao import *
 from id.id_service.magenid.idsapp.idsserver.lib.oidc.oauth_exception_handler import *
 
-from flask_restful import Resource, Api
-from flask_restful import reqparse
+from flask_restful import Api
 import urllib.parse
 
 from id.id_service.magenid.idsapp.idsserver.lib.autenticator import *

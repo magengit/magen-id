@@ -2,15 +2,8 @@
 
 import argparse
 import signal
-import socket
 import sys
-import os
 import ssl
-import logging
-import logging.config
-from mongoengine import connect
-
-from logging.handlers import RotatingFileHandler
 
 from magen_rest_apis.magen_app import MagenApp
 # If this is being run from workspace (as main module),
@@ -21,13 +14,11 @@ if src_ver:
     import dev.magen_env
 print(sys.path)
 from magen_utils_apis.domain_resolver import mongo_host_port
-from magen_mongo_apis.mongo_core_database import LOCAL_MONGO_LOCATOR, MongoCore
-from magen_mongo_apis.mongo_utils import MongoUtils
+from magen_mongo_apis.mongo_core_database import LOCAL_MONGO_LOCATOR
 from magen_logger.logger_config import LogDefaults, initialize_logger
 from magen_rest_apis.server_urls import ServerUrls
 
 from id.id_service.magenid.idsapp import ids
-from id.id_service.magenid.idsapp.idsserver.lib.db.models.models import *
 from id.id_service.magenid.idsapp.idsserver.lib.db.dao import *
 
 from id.id_service.magenid.idsapp.idsserver.lib.db.magen_user_dao import *
@@ -44,6 +35,7 @@ __status__ = "alpha"
 def signal_handler(signal, frame):
     print("********* ID Server got signal, STARTING ***********")
     sys.exit(0)
+
 
 data_dir_dflt = os.path.join(os.path.realpath(os.path.dirname(__file__)), "data")
 
@@ -112,7 +104,6 @@ else:
     extIdpDao = ExtIdpDao()
     domaindao = DomainDao()
 
-    
     ret = userdao.delete_all()
     logger.debug(ret)
 
@@ -120,7 +111,6 @@ else:
     logger.debug(data_dir)
     json_url = os.path.join(data_dir, "bootstrap.json")
     data = json.load(open(json_url))
-
 
     #insert groups into mongo database
     for g in data["groups"]:
@@ -132,7 +122,7 @@ else:
         logger.debug(user["username"])
         dic = get_user_dic(user["username"], user["email"], str(uuid.uuid4()), user["firstName"], user["lastName"],
                        user["password"], user["userGroup"],
-                       [], user["u_groups"], user["idp"], user["type"], user["type"], user["firstName"] +" "+ user["lastName"], True,user["imgSrc"])
+                       [], user["u_groups"], user["idp"], user["type"], user["type"], user["firstName"] + " " + user["lastName"], True,user["imgSrc"])
    
         userdao.saveForMappingUser(dic)
     for conapp in data["connected_apps"]:
@@ -148,7 +138,6 @@ else:
         user = userdao.get_by_user_name(username)
         clientdao.saveClient(user, client_dic)
 
-
     #insert sample_magen_client into mongo database
     sample_magen_client=data["sample_magen_client"]
 
@@ -157,26 +146,24 @@ else:
 
     #insert external idp information into mongo database
     for exidp in data["ext_idp"]:
-      extIdpDao.saveIdpNoRquest(name=exidp["name"],
-                              desc=exidp["desc"],
-                              client_id=exidp["client_id"],
-                              client_secret=exidp["client_secret"],
-                              authz_url=exidp["authz_url"],
-                              token_url=exidp["token_url"],
-                              user_info_url=exidp["user_info_url"],
-                              redirect_uri=exidp["redirect_uri"],
-                              scopes=exidp["scopes"],
-                              code_challenge=exidp["code_challenge"],
-                              code_challenge_method=exidp["code_challenge_method"],
-                              token_info_url=exidp["token_info_url"])
+        extIdpDao.saveIdpNoRquest(name=exidp["name"],
+                                  desc=exidp["desc"],
+                                  client_id=exidp["client_id"],
+                                  client_secret=exidp["client_secret"],
+                                  authz_url=exidp["authz_url"],
+                                  token_url=exidp["token_url"],
+                                  user_info_url=exidp["user_info_url"],
+                                  redirect_uri=exidp["redirect_uri"],
+                                  scopes=exidp["scopes"],
+                                  code_challenge=exidp["code_challenge"],
+                                  code_challenge_method=exidp["code_challenge_method"],
+                                  token_info_url=exidp["token_info_url"])
 
-    
     #insert domain information into mongo database
     for d in data["domain"]:
-       if d["allow"]=="yes":
-          domaindao.saveDomain(name=d["name"], idp=d["idp"], allow=True)
-       domaindao.saveDomain(name=d["name"], idp=d["idp"], allow=False)   
-
+        if d["allow"] == "yes":
+            domaindao.saveDomain(name=d["name"], idp=d["idp"], allow=True)
+        domaindao.saveDomain(name=d["name"], idp=d["idp"], allow=False)
 
     context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
     context.load_cert_chain('/etc/ssl/certs/server.crt', '/etc/ssl/certs/server.key')
