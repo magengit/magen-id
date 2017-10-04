@@ -6,8 +6,6 @@ from flask import Flask
 
 import logging
 
-
-
 __author__ = "michowdh@cisco.com"
 __copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
 __version__ = "0.2"

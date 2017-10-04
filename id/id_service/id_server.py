@@ -49,7 +49,7 @@ parser = argparse.ArgumentParser(description='Magen Id Server',
                                             "--clean-init "
                                             "--test\n"))
 
-parser.add_argument('--data-dir',
+parser.add_argument('--data-dir', default=data_dir_dflt,
                     help='Set directory for log files. '
                     'Default is %s' % data_dir_dflt)
 
@@ -107,17 +107,21 @@ else:
     ret = userdao.delete_all()
     logger.debug(ret)
 
-    data_dir = args.data_dir if args.data_dir else data_dir_dflt
+    data_dir = args.data_dir
     logger.debug(data_dir)
-    json_url = os.path.join(data_dir, "bootstrap.json")
-    data = json.load(open(json_url))
+    bootstrap_json_file = os.path.join(data_dir, "bootstrap.json")
+    try:
+        data = json.load(open(bootstrap_json_file))
+    except FileNotFoundError:
+        print("No bootstrap file found in dir: %s", bootstrap_json_file)
+        sys.exit(1)
 
-    #insert groups into mongo database
+    # insert groups into mongo database
     for g in data["groups"]:
         g_dic = get_magen_group_dic(g["ug_name"], g["ug_id"])
         group = magenGroupDao.insert(g_dic)
 
-    #insert users into mongo database
+    # insert users into mongo database
     for user in data["users"]:
         logger.debug(user["username"])
         dic = get_user_dic(user["username"], user["email"], str(uuid.uuid4()), user["firstName"], user["lastName"],
@@ -126,7 +130,7 @@ else:
    
         userdao.saveForMappingUser(dic)
     for conapp in data["connected_apps"]:
-        #insert sample_oauth_client into mongo database
+        # insert sample_oauth_client into mongo database
         name = conapp["name"]
         redirect_uris = conapp["redirect_uris"]
         jwt_alg = conapp["jwt_alg"]
@@ -138,13 +142,13 @@ else:
         user = userdao.get_by_user_name(username)
         clientdao.saveClient(user, client_dic)
 
-    #insert sample_magen_client into mongo database
+    # insert sample_magen_client into mongo database
     sample_magen_client=data["sample_magen_client"]
 
     c_dic = get_magen_client_dic(sample_magen_client["username"],sample_magen_client["device"])
     client = magenClientDao.insert(c_dic)
 
-    #insert external idp information into mongo database
+    # insert external idp information into mongo database
     for exidp in data["ext_idp"]:
         extIdpDao.saveIdpNoRquest(name=exidp["name"],
                                   desc=exidp["desc"],
@@ -159,7 +163,7 @@ else:
                                   code_challenge_method=exidp["code_challenge_method"],
                                   token_info_url=exidp["token_info_url"])
 
-    #insert domain information into mongo database
+    # insert domain information into mongo database
     for d in data["domain"]:
         if d["allow"] == "yes":
             domaindao.saveDomain(name=d["name"], idp=d["idp"], allow=True)
