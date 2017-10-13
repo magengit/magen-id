@@ -10,7 +10,6 @@ __version__ = "0.2"
 __status__ = "alpha"
 
 
-
 logger = logging.getLogger(__name__)
 
 CLIENT_TYPE_CHOICES = [
@@ -30,162 +29,182 @@ JWT_ALGS = [
 ]
 
 
-class Role(Document):
-    role = StringField(required=True, unique=True)
+class Role(mongoengine.Document):
+    """Represents Role collection in Mongo DB"""
+    role = mongoengine.StringField(required=True, unique=True)
 
 
+class Domain(mongoengine.Document):
+    """Represents Domain collection in Mongo DB"""
+    name = mongoengine.StringField(required=True, unique=True)
+    idp = mongoengine.StringField(max_length=50)
+    allow = mongoengine.BooleanField()
 
-class Domain(Document):
-    name = StringField(required=True, unique=True)
-    idp = StringField(max_length=50)
-    allow = BooleanField()
 
+class Client(mongoengine.Document):
+    """Represents Client collection in Mongo DB"""
+    client_id = mongoengine.StringField(max_length=200, required=True, unique=True)
+    client_name = mongoengine.StringField(max_length=20)
+    client_secret = mongoengine.StringField(max_length=200, nullable=False)
+    response_type = mongoengine.StringField(max_length=40)
+    user = mongoengine.ReferenceField(MagenUser)
+    redirect_uris = mongoengine.StringField(max_length=200)
+    default_scopes = mongoengine.StringField(max_length=200)
+    jwt_alg = mongoengine.StringField(max_length=10, default='RS256')
+    date_created = mongoengine.DateTimeField(default=datetime.datetime.now)
 
-class Client(Document):
-    client_id = StringField(max_length=200, required=True, unique=True)
-    client_name = StringField(max_length=20)
-    client_secret = StringField(max_length=200, nullable=False)
-    response_type = StringField(max_length=40)
-    user = ReferenceField(MagenUser)
-    redirect_uris = StringField(max_length=200)
-    default_scopes = StringField(max_length=200)
-    jwt_alg = StringField(max_length=10, default='RS256')
-    date_created = DateTimeField(default=datetime.datetime.now)
+    client_secret_expires_at = mongoengine.DateTimeField()
+    registration_client_uri = mongoengine.StringField(max_length=200)
 
-    client_secret_expires_at = DateTimeField()
-    registration_client_uri = StringField(max_length=200)
-
-    grant_types = StringField(max_length=200)
-    application_type = StringField(max_length=200)
-    contacts = StringField(max_length=200)
-    logo_uri = StringField(max_length=200)
-    client_uri = StringField(max_length=200)
-    policy_uri = StringField(max_length=200)
-    tos_uri = StringField(max_length=200)
-    jwks_uri = StringField(max_length=200)
-    jwks = StringField(max_length=200)
-    sector_identifier_uri = StringField(max_length=200)
-    subject_type = StringField(max_length=200)
-    id_token_signed_response_alg = StringField(max_length=10, default='RS256')
-    id_token_encrypted_response_alg = StringField(max_length=10, default='RS256')
-    id_token_encrypted_response_enc = StringField(max_length=10, default='RS256')
-    userinfo_signed_response_alg = StringField(max_length=10, default='RS256')
-    userinfo_encrypted_response_alg = StringField(max_length=10, default='RS256')
-    userinfo_encrypted_response_enc = StringField(max_length=10, default='RS256')
-    request_object_signing_alg = StringField(max_length=10, default='RS256')
-    request_object_encryption_alg = StringField(max_length=10, default='RS256')
-    request_object_encryption_enc = StringField(max_length=10, default='RS256')
-    token_endpoint_auth_method = StringField(max_length=200)
-    token_endpoint_auth_signing_alg = StringField(max_length=200)
-    default_max_age = IntField(default=False)
-    require_auth_time = BooleanField(default=False)
-    default_acr_values = StringField(max_length=200)
-    initiate_login_uri = StringField(max_length=200)
-    request_uris = StringField(max_length=200)
-    device_id = StringField(max_length=200)
-    mac = StringField(max_length=200)
-    ip = StringField(max_length=200)
-    revision = StringField(max_length=200)
-    dns_name = StringField(max_length=200)
-    client_description = StringField(max_length=200)   #human-readable description
-    reuse_refresh_token = BooleanField(default=False)   #do we let someone reuse a refresh token?
-    dynamically_registered = BooleanField(default=False)   # was this client dynamically registered?
-    allow_introspection = BooleanField(default=False)   #do we let this client call the introspection endpoint?
-    id_token_validity_seconds = IntField(default=False)   #timeout for id tokens
-    clear_access_tokens_on_refresh = BooleanField(default=False)   # do we clear access tokens on refresh?
-
+    grant_types = mongoengine.StringField(max_length=200)
+    application_type = mongoengine.StringField(max_length=200)
+    contacts = mongoengine.StringField(max_length=200)
+    logo_uri = mongoengine.StringField(max_length=200)
+    client_uri = mongoengine.StringField(max_length=200)
+    policy_uri = mongoengine.StringField(max_length=200)
+    tos_uri = mongoengine.StringField(max_length=200)
+    jwks_uri = mongoengine.StringField(max_length=200)
+    jwks = mongoengine.StringField(max_length=200)
+    sector_identifier_uri = mongoengine.StringField(max_length=200)
+    subject_type = mongoengine.StringField(max_length=200)
+    id_token_signed_response_alg = mongoengine.StringField(max_length=10, default='RS256')
+    id_token_encrypted_response_alg = mongoengine.StringField(max_length=10, default='RS256')
+    id_token_encrypted_response_enc = mongoengine.StringField(max_length=10, default='RS256')
+    userinfo_signed_response_alg = mongoengine.StringField(max_length=10, default='RS256')
+    userinfo_encrypted_response_alg = mongoengine.StringField(max_length=10, default='RS256')
+    userinfo_encrypted_response_enc = mongoengine.StringField(max_length=10, default='RS256')
+    request_object_signing_alg = mongoengine.StringField(max_length=10, default='RS256')
+    request_object_encryption_alg = mongoengine.StringField(max_length=10, default='RS256')
+    request_object_encryption_enc = mongoengine.StringField(max_length=10, default='RS256')
+    token_endpoint_auth_method = mongoengine.StringField(max_length=200)
+    token_endpoint_auth_signing_alg = mongoengine.StringField(max_length=200)
+    default_max_age = mongoengine.IntField(default=False)
+    require_auth_time = mongoengine.BooleanField(default=False)
+    default_acr_values = mongoengine.StringField(max_length=200)
+    initiate_login_uri = mongoengine.StringField(max_length=200)
+    request_uris = mongoengine.StringField(max_length=200)
+    device_id = mongoengine.StringField(max_length=200)
+    mac = mongoengine.StringField(max_length=200)
+    ip = mongoengine.StringField(max_length=200)
+    revision = mongoengine.StringField(max_length=200)
+    dns_name = mongoengine.StringField(max_length=200)
+    # human-readable description
+    client_description = mongoengine.StringField(max_length=200)
+    # do we let someone reuse a refresh token?
+    reuse_refresh_token = mongoengine.BooleanField(default=False)
+    # was this client dynamically registered?
+    dynamically_registered = mongoengine.BooleanField(default=False)
+    # do we let this client call the introspection endpoint?
+    allow_introspection = mongoengine.BooleanField(default=False)
+    # timeout for id tokens
+    id_token_validity_seconds = mongoengine.IntField(default=False)
+    # do we clear access tokens on refresh?
+    clear_access_tokens_on_refresh = mongoengine.BooleanField(default=False)
 
     @property
     def client_type(self):
+        """Client type property. now option is only 'public'"""
         return 'public'
 
-#=============== token model =====================
 
-class Code(Document):
-    code = StringField(max_length=40, required=True)
-    nonce = StringField(max_length=40, required=True)
-    is_authentication = BooleanField(default=False)
-    code_challenge = StringField(max_length=255)
-    code_challenge_method = StringField(max_length=255)
-    user = ReferenceField(MagenUser)
-    client = ReferenceField(Client)
-    expires = DateTimeField()
-    scopes = StringField(max_length=255)
+class Code(mongoengine.Document):
+    """Represents Code collection in Mongo DB"""
+    code = mongoengine.StringField(max_length=40, required=True)
+    nonce = mongoengine.StringField(max_length=40, required=True)
+    is_authentication = mongoengine.BooleanField(default=False)
+    code_challenge = mongoengine.StringField(max_length=255)
+    code_challenge_method = mongoengine.StringField(max_length=255)
+    user = mongoengine.ReferenceField(MagenUser)
+    client = mongoengine.ReferenceField(Client)
+    expires = mongoengine.DateTimeField()
+    scopes = mongoengine.StringField(max_length=255)
 
     def has_expired(self):
-        #return datetime.datetime.now() >= self.expires_at
+        """For now Code never expires"""
+        # return datetime.datetime.now() >= self.expires_at
         return False
 
     class Meta:
+        """Meta class for dynamic inheritance"""
         abstract = True
 
 
-class Grant(Document):
-    code = ReferenceField(Code)
-    redirect_uri = StringField(max_length=255)
-    user = ReferenceField(MagenUser)
-    client = ReferenceField(Client)
-    expires = DateTimeField()
-    scopes = StringField(max_length=255)
+class Grant(mongoengine.Document):
+    """Represents Grant collection in Mongo DB"""
+    code = mongoengine.ReferenceField(Code)
+    redirect_uri = mongoengine.StringField(max_length=255)
+    user = mongoengine.ReferenceField(MagenUser)
+    client = mongoengine.ReferenceField(Client)
+    expires = mongoengine.DateTimeField()
+    scopes = mongoengine.StringField(max_length=255)
 
 
-class Token(Document):
-    access_token = StringField(max_length=40, unique=True)
-    refresh_token = StringField(max_length=225, unique=True)
-    id_token = StringField(max_length=225, unique=True)
-    encoded_token = StringField(max_length=225, unique=True)
-    user = ReferenceField(MagenUser)
-    client = ReferenceField(Client)
-    expires = DateTimeField()
-    scopes = StringField(max_length=255)
-    mc_id = StringField(max_length=255)
-
+class Token(mongoengine.Document):
+    """Represents Token collection in Mongo DB"""
+    access_token = mongoengine.StringField(max_length=40, unique=True)
+    refresh_token = mongoengine.StringField(max_length=225, unique=True)
+    id_token = mongoengine.StringField(max_length=225, unique=True)
+    encoded_token = mongoengine.StringField(max_length=225, unique=True)
+    user = mongoengine.ReferenceField(MagenUser)
+    client = mongoengine.ReferenceField(Client)
+    expires = mongoengine.DateTimeField()
+    scopes = mongoengine.StringField(max_length=255)
+    mc_id = mongoengine.StringField(max_length=255)
 
     class Meta:
+        """Meta class for dynamic inheritance"""
         verbose_name = u'Token'
         verbose_name_plural = u'Tokens'
 
-class Service(Document):
-         state = StringField(max_length=255, unique=True, nullable=False)
-         client_id = StringField(max_length=255)
-         response_type =  StringField(max_length=255)
-         redirect_uri = StringField(max_length=255)
-         nonce=StringField(max_length=255)
-         default_scopes = StringField(max_length=255)
-         code_challenge = StringField(max_length=255)
-         code_challenge_method = StringField(max_length=255)
-         username = StringField(max_length=255)
-         external_token_info = StringField(max_length=2055)
+
+class Service(mongoengine.Document):
+    """Represents Service collection in Mongo DB"""
+    state = mongoengine.StringField(max_length=255, unique=True, nullable=False)
+    client_id = mongoengine.StringField(max_length=255)
+    response_type = mongoengine.StringField(max_length=255)
+    redirect_uri = mongoengine.StringField(max_length=255)
+    nonce = mongoengine.StringField(max_length=255)
+    default_scopes = mongoengine.StringField(max_length=255)
+    code_challenge = mongoengine.StringField(max_length=255)
+    code_challenge_method = mongoengine.StringField(max_length=255)
+    username = mongoengine.StringField(max_length=255)
+    external_token_info = mongoengine.StringField(max_length=2055)
 
 
-class ExtIdp(Document):
-         name = StringField(max_length=255, unique=True, nullable=False)
-         desc = StringField(max_length=255)
-         client_id = StringField(max_length=255)
-         client_secret =  StringField(max_length=255)
-         authz_url =  StringField(max_length=255)
-         token_url =  StringField(max_length=255)
-         token_info_url =  StringField(max_length=255)
-         user_info_url =  StringField(max_length=255)
-         redirect_uri = StringField(max_length=255)
-         scopes = StringField(max_length=255)
-         code_challenge = StringField(max_length=255)
-         code_challenge_method = StringField(max_length=255)
+class ExtIdp(mongoengine.Document):
+    """Represents External Idps collection in Mongo DB"""
+    name = mongoengine.StringField(max_length=255, unique=True, nullable=False)
+    desc = mongoengine.StringField(max_length=255)
+    client_id = mongoengine.StringField(max_length=255)
+    client_secret = mongoengine.StringField(max_length=255)
+    authz_url = mongoengine.StringField(max_length=255)
+    token_url = mongoengine.StringField(max_length=255)
+    token_info_url = mongoengine.StringField(max_length=255)
+    user_info_url = mongoengine.StringField(max_length=255)
+    redirect_uri = mongoengine.StringField(max_length=255)
+    scopes = mongoengine.StringField(max_length=255)
+    code_challenge = mongoengine.StringField(max_length=255)
+    code_challenge_method = mongoengine.StringField(max_length=255)
 
-class RSAKey(Document):
 
-    key = StringField(verbose_name=u'Key')
+class RSAKey(mongoengine.Document):
+    """"Represents External Idps collection in Mongo DB"""
 
-    class Meta:
-        verbose_name = u'RSA Key'
-        verbose_name_plural = u'RSA Keys'
+    key = mongoengine.StringField(verbose_name='Key')
+
+    # FIXME:
+    # No usages found
+    # class Meta:
+    #     verbose_name = u'RSA Key'
+    #     verbose_name_plural = u'RSA Keys'
 
     def __str__(self):
-        return u'{0}'.format(self.kid)
+        return '{0}'.format(self.kid)
 
     def __unicode__(self):
         return self.__str__()
 
     @property
     def kid(self):
-        return  u'{0}'.format(md5(self.key.encode('utf-8')).hexdigest() if self.key else '')
+        """key id md5 format"""
+        return '{0}'.format(md5(self.key.encode('utf-8')).hexdigest() if self.key else '')
