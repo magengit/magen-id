@@ -169,6 +169,6 @@ else:
             domaindao.saveDomain(name=d["name"], idp=d["idp"], allow=True)
         domaindao.saveDomain(name=d["name"], idp=d["idp"], allow=False)
 
-    context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-    context.load_cert_chain('/etc/ssl/certs/server.crt', '/etc/ssl/certs/server.key')
-    ids.run(host='0.0.0.0', debug=True, port=SERVER_PORT, threaded=True, ssl_context=context)
+    # context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+    # context.load_cert_chain('/etc/ssl/certs/server.crt', '/etc/ssl/certs/server.key')
+    ids.run(host='0.0.0.0', debug=True, port=SERVER_PORT, threaded=True)

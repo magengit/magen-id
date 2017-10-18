@@ -47,6 +47,8 @@ class Client(mongoengine.Document):
     client_name = mongoengine.StringField(max_length=20)
     client_secret = mongoengine.StringField(max_length=200, nullable=False)
     response_type = mongoengine.StringField(max_length=40)
+    # FIXME: deletion of reference is not handled properly
+    # ex.: ReferenceField(User, reverse_delete_rule=CASCADE)
     user = mongoengine.ReferenceField(MagenUser)
     redirect_uris = mongoengine.StringField(max_length=200)
     default_scopes = mongoengine.StringField(max_length=200)
