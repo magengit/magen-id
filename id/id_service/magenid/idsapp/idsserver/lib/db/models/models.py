@@ -28,6 +28,8 @@ JWT_ALGS = [
     ('RS256', 'RS256'),
 ]
 
+# FIXME: Make sure all fields in models have a meaning, usage, documented
+
 
 class Role(mongoengine.Document):
     """Represents Role collection in Mongo DB"""
@@ -41,6 +43,8 @@ class Domain(mongoengine.Document):
     allow = mongoengine.BooleanField()
 
 
+# This model is for authorised client such as service that works with ID - not Magen Client (which is device)
+# FIXME: re-name + doc; remove unused fields ( make sure that it's understandable what each field means )
 class Client(mongoengine.Document):
     """Represents Client collection in Mongo DB"""
     client_id = mongoengine.StringField(max_length=200, required=True, unique=True)
@@ -51,6 +55,7 @@ class Client(mongoengine.Document):
     # ex.: ReferenceField(User, reverse_delete_rule=CASCADE)
     user = mongoengine.ReferenceField(MagenUser)
     redirect_uris = mongoengine.StringField(max_length=200)
+    # FIXME: default_scopes is always passed as list
     default_scopes = mongoengine.StringField(max_length=200)
     jwt_alg = mongoengine.StringField(max_length=10, default='RS256')
     date_created = mongoengine.DateTimeField(default=datetime.datetime.now)
@@ -58,6 +63,7 @@ class Client(mongoengine.Document):
     client_secret_expires_at = mongoengine.DateTimeField()
     registration_client_uri = mongoengine.StringField(max_length=200)
 
+    # FIXME: -s implies to LIST, no STRING
     grant_types = mongoengine.StringField(max_length=200)
     application_type = mongoengine.StringField(max_length=200)
     contacts = mongoengine.StringField(max_length=200)
@@ -109,6 +115,7 @@ class Client(mongoengine.Document):
         return 'public'
 
 
+# FIXME: name same as name require attribute
 class Code(mongoengine.Document):
     """Represents Code collection in Mongo DB"""
     code = mongoengine.StringField(max_length=40, required=True)
@@ -119,6 +126,7 @@ class Code(mongoengine.Document):
     user = mongoengine.ReferenceField(MagenUser)
     client = mongoengine.ReferenceField(Client)
     expires = mongoengine.DateTimeField()
+    # FIXME: what is scopes for? Shouldn't it be List?
     scopes = mongoengine.StringField(max_length=255)
 
     def has_expired(self):
@@ -134,9 +142,11 @@ class Code(mongoengine.Document):
 class Grant(mongoengine.Document):
     """Represents Grant collection in Mongo DB"""
     code = mongoengine.ReferenceField(Code)
-    redirect_uri = mongoengine.StringField(max_length=255)
+    redirect_uri = mongoengine.StringField(max_length=255) # The only field different from code
     user = mongoengine.ReferenceField(MagenUser)
     client = mongoengine.ReferenceField(Client)
+    # FIXME: code has the same. are these different?
+    # FIXME: in Grant dao expires and scopes are shared between code and grant - FIX
     expires = mongoengine.DateTimeField()
     scopes = mongoengine.StringField(max_length=255)
 
@@ -147,6 +157,7 @@ class Token(mongoengine.Document):
     refresh_token = mongoengine.StringField(max_length=225, unique=True)
     id_token = mongoengine.StringField(max_length=225, unique=True)
     encoded_token = mongoengine.StringField(max_length=225, unique=True)
+    # FIXME: client already has the user - this is potential threat to provide user different from client user
     user = mongoengine.ReferenceField(MagenUser)
     client = mongoengine.ReferenceField(Client)
     expires = mongoengine.DateTimeField()

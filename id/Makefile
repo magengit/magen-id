@@ -66,10 +66,11 @@ run_unit_test:
 	@sleep 2
 	$(info ************  STARTING TESTS ************)
 	@$(SERVER_WRAPPER) -mode test
+	@$(COVERAGE) $(PYTEST) new_tests/
 
 pre_test: ;
 
-coverage_report: ;
+coverage_report: common_coverage_report;
 
 run: common_run
 

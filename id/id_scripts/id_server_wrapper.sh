@@ -110,7 +110,7 @@ oper)
 test)
     # for test, this script exits to allow pytest to run
     sleep 2
-    ${PYTEST} tests
+    ${COVERAGE} -m ${PYTEST} tests/
     pytest_res=$?
     ID_PID=$(get_pid "[i]d_server.py")
     echo "************  CLEANING UP SERVICES (ID_PID:${ID_PID}) ************"
