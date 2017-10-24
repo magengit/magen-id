@@ -116,7 +116,7 @@ class TestMagenClientAPI(TestBasePyMongo):
         """Update a client and push to Database"""
 
         update_dict = dict(
-            username='test_another_username',
+            user='test_another_username',
             revision='test_another_revision'
         )
 
@@ -133,4 +133,9 @@ class TestMagenClientAPI(TestBasePyMongo):
         # Update existing document
         result = self.mc_api.update_client(update_dict, mc_id=MAGEN_CLIENT['mc_id'])
         self.assertTrue(result.success)
-        print(result.to_dict())
+        self.assertEqual(result.count, 1)
+        # Verify that data was updated
+        selected = self.mc_api.get_client(MAGEN_CLIENT['mc_id'])
+        self.assertTrue(selected.success)
+        self.assertEqual(selected.documents['user'], update_dict['user'])
+        self.assertEqual(selected.documents['revision'], update_dict['revision'])

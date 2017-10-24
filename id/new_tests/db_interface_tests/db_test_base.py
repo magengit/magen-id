@@ -8,6 +8,7 @@ import mongoengine.connection as mongo_connection
 from magen_utils_apis import domain_resolver
 from id.id_service.magenid.idsapp.idsserver.lib.db.id_service_db import IdDatabase, MongoId
 from id.id_service.magenid.idsapp.idsserver.lib.db.mongo_magen_client_dao import MongoMagenClient
+from id.id_service.magenid.idsapp.idsserver.lib.db.mongo_magen_group_dao import MongoMagenUserGroup
 
 DB_NAME = 'test_id_db'
 
@@ -36,6 +37,7 @@ class TestBasePyMongo(unittest.TestCase):
     """Test Base class for mongo connection using PyMongo lib"""
     mongo_client = None
     magen_client_collection = None
+    magen_user_group_collection = None
 
     @classmethod
     def setUpClass(cls):
@@ -43,8 +45,10 @@ class TestBasePyMongo(unittest.TestCase):
         db = IdDatabase()
         db.id_service_db = MongoId.get_instance()
         db.id_service_db.magen_client_strategy = MongoMagenClient.get_instance()
+        db.id_service_db.magen_user_group_strategy = MongoMagenUserGroup.get_instance()
         cls.mongo_client = db.id_service_db.initialize(host=mongo_ip, port=mongo_port, db_name=DB_NAME)
         cls.magen_client_collection = db.id_service_db.magen_client_strategy.get_collection()
+        cls.magen_user_group_collection = db.id_service_db.magen_user_group_strategy.get_collection()
 
     @classmethod
     def tearDownClass(cls):

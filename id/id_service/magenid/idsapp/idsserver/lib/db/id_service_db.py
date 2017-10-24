@@ -96,6 +96,7 @@ class MongoId(IdDatabase):
         self.magen_client.create_index('mc_id', unique=True)
         self.magen_user = self.id_db.get_collection(_COLLECTIONS['magen_user'])
         self.magen_user_group = self.id_db.get_collection(_COLLECTIONS['magen_user_group'])
+        self.magen_user_group.create_index('ug_name', unique=True)
         self.id_client_app = self.id_db.get_collection(_COLLECTIONS['id_client_app'])
         self.id_token = self.id_db.get_collection(_COLLECTIONS['id_token'])
         return self.mongo_client

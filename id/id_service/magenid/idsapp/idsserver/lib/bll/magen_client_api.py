@@ -65,8 +65,8 @@ class MagenClientApi(object):
         :return: response object
         :rtype: MongoReturn object
         """
-        projection = dict(mc_id=magen_client_id)
-        return self.magen_client_strategy.find_one_filter(projection)
+        seed = dict(mc_id=magen_client_id)
+        return self.magen_client_strategy.find_one_filter(seed)
 
     def get_by_user_and_device_id(self, username: str, device_type: str):
         """
