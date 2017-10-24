@@ -53,8 +53,9 @@ setup(
         'mock>=2.0',
         'magen_logger==1.0a1',
         'magen_utils==1.0a1',
-        'magen_test_utils==1.0a1',
-        'magen_mongo==1.0a1',
+        # 'magen_test_utils==1.0a1',
+        'magen_mongo>=1.1a',
+        'magen_datastore>=1.0a',
         'magen_rest_service==1.0a1',
         'magen_statistics_service==1.0a1'
     ],
