@@ -37,6 +37,7 @@ class MagenUser(mongoengine.Document):
 
     position = mongoengine.StringField(max_length=200)
     u_groups = mongoengine.ListField(StringField(max_length=200))
+    # FIXME: clients must be references in LIST
     u_clients = mongoengine.ListField(StringField(max_length=200))
     display_name = mongoengine.StringField(max_length=200)
 

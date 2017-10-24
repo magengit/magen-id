@@ -1,3 +1,6 @@
+# FIXME: module name makes me think that this is all dao in the system when it's not (Magen* models) - rename!
+# FIXME: import statements
+# FIXME: Dao should not return Mongo objects. they must be wrapped or cast to list/dict
 import datetime
 from hashlib import md5
 import json,traceback
@@ -23,204 +26,208 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.DEBUG)
 
-class BaseDao():
-    #create user object
-    def _creatUser(self,username,password,first_name,last_name,last_login,registered_on,role,idp,group,department,photo,local):
-        user = User(username=username)
-        user.password=password
-        user.first_name=first_name
-        user.last_name=last_name
-        user.last_login = last_name
-        user.registered_on = registered_on
-        user.role=role
-        user.idp=idp
-        user.group=group
-        user.department=department
-        user.photo=photo
-        user.local=local
-        return user
 
-    #create client object
-    def _creatClient(self,name,client_id,client_secret,user,response_type,redirect_uris,default_scopes,jwt_alg):
-        client=Client(client_id=client_id)
-        client.client_name = name
-        client.user = user
-        client.client_secret = client_secret
-        client.response_type =  response_type
-        client.redirect_uris = redirect_uris
-        client.default_scopes = default_scopes
-        client.jwt_alg = jwt_alg
-        client.date_created = get_now_time()
-        return client
+# FIXME: the whole meaning of having a class must be re-evaluated
+# FIXME: no usages found
+#create user object
+# def _creatUser(username,password,first_name,last_name,last_login,registered_on,role,idp,group,department,photo,local):
+#     user = User(username=username)
+#     user.password=password
+#     user.first_name=first_name
+#     user.last_name=last_name
+#     user.last_login = last_name
+#     user.registered_on = registered_on
+#     user.role=role
+#     user.idp=idp
+#     user.group=group
+#     user.department=department
+#     user.photo=photo
+#     user.local=local
+#     return user
 
-    #create client object
-    def _creatDynamicClient(self,
-        client_name,
-        client_id,
-        client_secret,
-        user,
-        redirect_uris,
-        expire,
-        response_type=None,
-        default_scopes=None,
-        jwt_alg=None,
-        registration_client_uri=None,
-        grant_types=None,
-        application_type=None,
-        contacts=None,
-        logo_uri=None,
-        client_uri=None,
-        policy_uri=None,
-        tos_uri=None,
-        jwks_uri=None,
-        jwks=None,
-        sector_identifier_uri=None,
-        subject_type=None,
-        id_token_signed_response_alg=None,
-        id_token_encrypted_response_alg=None,
-        id_token_encrypted_response_enc=None,
-        userinfo_signed_response_alg=None,
-        userinfo_encrypted_response_alg=None,
-        userinfo_encrypted_response_enc=None,
-        request_object_signing_alg=None,
-        request_object_encryption_alg=None,
-        request_object_encryption_enc=None,
-        token_endpoint_auth_method=None,
-        token_endpoint_auth_signing_alg=None,
-        default_max_age=None,
-        require_auth_time=None,
-        default_acr_values=None,
-        initiate_login_uri=None,
-        request_uris=None,
-        device_id=None,
-        mac=None,
-        ip=None,
-        revision=None,
-        dns_name=None,
-        client_description=None,
-        reuse_refresh_token=None,
-        dynamically_registered=None,
-        allow_introspection=None,
-        id_token_validity_seconds=None,
-        clear_access_tokens_on_refresh=None):
-        client=Client(client_id=client_id)
-        client.client_name = client_name
-        client.user = user
-        client.client_secret = client_secret
-        client.response_type =  response_type
-        client.redirect_uris = redirect_uris
-        client.default_scopes = default_scopes
-        client.jwt_alg = jwt_alg
-        client.date_created = get_now_time()
-        client.client_secret_expires_at=get_expire_time(expire)
-        client.registration_client_uri=registration_client_uri
+# FIXME: JOIN two functions below into 1
+# FIXME: too many arguments, can be packed as kwargs
+# FIXME: invalid name
+# create client object
+def _creatClient(name,client_id,client_secret,user,response_type,redirect_uris,default_scopes,jwt_alg):
+    client=Client(client_id=client_id)
+    client.client_name = name
+    client.user = user
+    client.client_secret = client_secret
+    client.response_type = response_type
+    client.redirect_uris = redirect_uris
+    client.default_scopes = default_scopes
+    client.jwt_alg = jwt_alg
+    client.date_created = get_now_time()
+    return client
 
-        client.grant_types=grant_types
-        client.application_type= application_type
-        client.contacts= contacts
-        client.logo_uri= logo_uri
-        client.client_uri= client_uri
-        client.policy_uri= policy_uri
-        client.tos_uri= tos_uri
-        client.jwks_uri= jwks_uri
-        client.jwks= jwks
-        client.sector_identifier_uri= sector_identifier_uri
-        client.subject_type= subject_type
-        client.id_token_signed_response_alg= id_token_signed_response_alg
-        client.id_token_encrypted_response_alg= id_token_encrypted_response_alg
-        client.id_token_encrypted_response_enc= id_token_encrypted_response_enc
-        client.userinfo_signed_response_alg= userinfo_signed_response_alg
-        client.userinfo_encrypted_response_alg= userinfo_encrypted_response_alg
-        client.userinfo_encrypted_response_enc= userinfo_encrypted_response_enc
-        client.request_object_signing_alg= request_object_signing_alg
-        client.request_object_encryption_alg= request_object_encryption_alg
-        client.request_object_encryption_enc= request_object_encryption_enc
-        client.token_endpoint_auth_method= token_endpoint_auth_method
-        client.token_endpoint_auth_signing_alg= token_endpoint_auth_signing_alg
-        client.default_max_age= default_max_age
-        client.require_auth_time= require_auth_time
-        client.default_acr_values= default_acr_values
-        client.initiate_login_uri= initiate_login_uri
-        client.request_uris= request_uris
+#create client object
+def _creatDynamicClient(client_name,
+    client_id,
+    client_secret,
+    user,
+    redirect_uris,
+    expire,
+    response_type=None,
+    default_scopes=None,
+    jwt_alg=None,
+    registration_client_uri=None,
+    grant_types=None,
+    application_type=None,
+    contacts=None,
+    logo_uri=None,
+    client_uri=None,
+    policy_uri=None,
+    tos_uri=None,
+    jwks_uri=None,
+    jwks=None,
+    sector_identifier_uri=None,
+    subject_type=None,
+    id_token_signed_response_alg=None,
+    id_token_encrypted_response_alg=None,
+    id_token_encrypted_response_enc=None,
+    userinfo_signed_response_alg=None,
+    userinfo_encrypted_response_alg=None,
+    userinfo_encrypted_response_enc=None,
+    request_object_signing_alg=None,
+    request_object_encryption_alg=None,
+    request_object_encryption_enc=None,
+    token_endpoint_auth_method=None,
+    token_endpoint_auth_signing_alg=None,
+    default_max_age=None,
+    require_auth_time=None,
+    default_acr_values=None,
+    initiate_login_uri=None,
+    request_uris=None,
+    device_id=None,
+    mac=None,
+    ip=None,
+    revision=None,
+    dns_name=None,
+    client_description=None,
+    reuse_refresh_token=None,
+    dynamically_registered=None,
+    allow_introspection=None,
+    id_token_validity_seconds=None,
+    clear_access_tokens_on_refresh=None):
+    client=Client(client_id=client_id)
+    client.client_name = client_name
+    client.user = user
+    client.client_secret = client_secret
+    client.response_type =  response_type
+    client.redirect_uris = redirect_uris
+    client.default_scopes = default_scopes
+    client.jwt_alg = jwt_alg
+    client.date_created = get_now_time()
+    client.client_secret_expires_at=get_expire_time(expire)
+    client.registration_client_uri=registration_client_uri
 
-        client.device_id=device_id
-        client.mac=mac
-        client.ip=ip
-        client.revision=revision
-        client.dns_name=dns_name
-        return client
+    client.grant_types=grant_types
+    client.application_type= application_type
+    client.contacts= contacts
+    client.logo_uri= logo_uri
+    client.client_uri= client_uri
+    client.policy_uri= policy_uri
+    client.tos_uri= tos_uri
+    client.jwks_uri= jwks_uri
+    client.jwks= jwks
+    client.sector_identifier_uri= sector_identifier_uri
+    client.subject_type= subject_type
+    client.id_token_signed_response_alg= id_token_signed_response_alg
+    client.id_token_encrypted_response_alg= id_token_encrypted_response_alg
+    client.id_token_encrypted_response_enc= id_token_encrypted_response_enc
+    client.userinfo_signed_response_alg= userinfo_signed_response_alg
+    client.userinfo_encrypted_response_alg= userinfo_encrypted_response_alg
+    client.userinfo_encrypted_response_enc= userinfo_encrypted_response_enc
+    client.request_object_signing_alg= request_object_signing_alg
+    client.request_object_encryption_alg= request_object_encryption_alg
+    client.request_object_encryption_enc= request_object_encryption_enc
+    client.token_endpoint_auth_method= token_endpoint_auth_method
+    client.token_endpoint_auth_signing_alg= token_endpoint_auth_signing_alg
+    client.default_max_age= default_max_age
+    client.require_auth_time= require_auth_time
+    client.default_acr_values= default_acr_values
+    client.initiate_login_uri= initiate_login_uri
+    client.request_uris= request_uris
 
-    # create code object
-    def _creatCode(self,user, client_id,code,nonce,auth,expire,scopes,code_c,code_c_meth):
-        code_obj = Code(code=code)
-        code_obj.nonce = nonce
-        code_obj.is_authentication = auth
-        code_obj.code_challenge = code_c
-        code_obj.code_challenge_method = code_c_meth
-        code_obj.user = user
-        code_obj.client = Client.objects.get(client_id=client_id)
-        code_obj.expires = get_expire_time(expire)
-        code_obj.scopes = scopes
-        return code_obj
+    client.device_id=device_id
+    client.mac=mac
+    client.ip=ip
+    client.revision=revision
+    client.dns_name=dns_name
+    return client
 
-    # create grant object
-    def _creatGrant(self,user, client_id,code,redirect_uri,expire):
-        #logger.debug('_creatGrant=====user====', user.username)
-        grant = Grant(user=user)
-        grant.client = Client.objects.get(client_id=client_id)
-        grant.code = code
-        grant.expires = get_expire_time(expire)
-        grant.redirect_uri=redirect_uri
-        grant.scopes=code.scopes
-        return grant
+# create code object
+def _creatCode(user, client_id,code,nonce,auth,expire,scopes,code_c,code_c_meth):
+    code_obj = Code(code=code)
+    code_obj.nonce = nonce
+    code_obj.is_authentication = auth
+    code_obj.code_challenge = code_c
+    code_obj.code_challenge_method = code_c_meth
+    code_obj.user = user
+    code_obj.client = Client.objects.get(client_id=client_id)
+    code_obj.expires = get_expire_time(expire)
+    code_obj.scopes = scopes
+    return code_obj
 
-    # create token object
-    def _creatToken(self,user, client,access_token,refresh_token,id_token,encoded_token,scopes,expire,magen_client_id):
-        token = Token(user=user)
-        token.client = client
-        #token.token_type = token_type
-        token.access_token = access_token
-        token.refresh_token = refresh_token
-        token.expires = get_expire_time(expire)
-        token.scopes = scopes
-        token.id_token = id_token
-        token.encoded_token=encoded_token
-        token.mc_id=magen_client_id
-        return token
+# create grant object
+def _creatGrant(user, client_id,code,redirect_uri,expire):
+    #logger.debug('_creatGrant=====user====', user.username)
+    grant = Grant(user=user)
+    grant.client = Client.objects.get(client_id=client_id)
+    grant.code = code
+    grant.expires = get_expire_time(expire)
+    grant.redirect_uri=redirect_uri
+    grant.scopes=code.scopes
+    return grant
 
-    # create token object
-    def _creatService(self,state, nonce,response_type,code_c,code_c_meth,client_id,scopes,redirect_uri,username,external_token_info):
-        service = Service(state=state)
-        service.nonce = nonce
-        service.response_type = response_type
-        service.code_challenge = code_c
-        service.code_challenge_method = code_c_meth
-        service.client_id = client_id
-        service.scopes = scopes
-        service.redirect_uri=redirect_uri
-        service.username=username
-        service.external_token_info=external_token_info
-        return service
+# create token object
+def _creatToken(user, client,access_token,refresh_token,id_token,encoded_token,scopes,expire,magen_client_id):
+    token = Token(user=user)
+    token.client = client
+    #token.token_type = token_type
+    token.access_token = access_token
+    token.refresh_token = refresh_token
+    token.expires = get_expire_time(expire)
+    token.scopes = scopes
+    token.id_token = id_token
+    token.encoded_token=encoded_token
+    token.mc_id=magen_client_id
+    return token
 
-    # create token object
-    def _creatIdp(self,name,desc,client_id,client_secret,authz_url,token_url,user_info_url,redirect_uri,scopes,code_challenge,code_challenge_method,token_info_url):
-        idp = ExtIdp(name=name)
-        idp.desc = desc
-        idp.client_id = client_id
-        idp.client_secret = client_secret
-        idp.authz_url = authz_url
-        idp.token_url = token_url
-        idp.user_info_url=user_info_url
-        idp.token_info_url=token_info_url
-        idp.redirect_uri=redirect_uri
-        idp.scopes = scopes
-        idp.code_challenge = code_challenge
-        idp.code_challenge_method = code_challenge_method
-        return idp
+# create token object
+def _creatService(state, nonce,response_type,code_c,code_c_meth,client_id,scopes,redirect_uri,username,external_token_info):
+    service = Service(state=state)
+    service.nonce = nonce
+    service.response_type = response_type
+    service.code_challenge = code_c
+    service.code_challenge_method = code_c_meth
+    service.client_id = client_id
+    service.scopes = scopes
+    service.redirect_uri=redirect_uri
+    service.username=username
+    service.external_token_info=external_token_info
+    return service
+
+# create token object
+def _creatIdp(name,desc,client_id,client_secret,authz_url,token_url,user_info_url,redirect_uri,scopes,code_challenge,code_challenge_method,token_info_url):
+    idp = ExtIdp(name=name)
+    idp.desc = desc
+    idp.client_id = client_id
+    idp.client_secret = client_secret
+    idp.authz_url = authz_url
+    idp.token_url = token_url
+    idp.user_info_url=user_info_url
+    idp.token_info_url=token_info_url
+    idp.redirect_uri=redirect_uri
+    idp.scopes = scopes
+    idp.code_challenge = code_challenge
+    idp.code_challenge_method = code_challenge_method
+    return idp
 
 #################### DOMAIN #########################
 
-class DomainDao(BaseDao):
+class DomainDao(object):
     def getAllDomains(self):
         domains=Domain.objects.all()
         return domains
@@ -249,11 +256,13 @@ class DomainDao(BaseDao):
 
 ############### CLIENT #####################
 
-class ClientDao(BaseDao):
+class ClientDao(object):
+    # FIXME: dao must support get clients by _projection_ (any condition that is passed to it)
     def getAllClients(self):
         try:
            clients=Client.objects.all()
            return clients
+        # FIXME: handle specific exceptions
         except: # pragma: no cover
            printErrorLog()
            return None
@@ -263,6 +272,8 @@ class ClientDao(BaseDao):
            clients=[]
            for c in all_clients:
                #logger.debug("c=====: %s ", c.client_name)
+               # FIXME: gradually handle if user doesn't exists for the client
+               # FIXME: or make sure that user is passed or deny client creation
                if c.user.username==username:
                    clients.append(c)
            return clients
@@ -278,15 +289,23 @@ class ClientDao(BaseDao):
         except: # pragma: no cover
            printErrorLog()
            return None
-    def getClientByClientIdAndCode(self, client_id,code):
-        try:
-           client = Client.objects.get(client_id=client_id,code=code)
-           return client
-        except: # pragma: no cover
-           printErrorLog()
-           return None
+    # FIXME: client_id is unique and required field, why do we need to pass code even??!
+    # FIXME: no usages found
+    # def getClientByClientIdAndCode(self, client_id,code):
+    #     try:
+    #        client = Client.objects.get(client_id=client_id,code=code)
+    #        return client
+    #     except: # pragma: no cover
+    #        printErrorLog()
+    #        return None
+
+    # FIXME: any reason to have multiple function for inserting a single client ???
+    # FIXME: rename - it's not _GET_ it's insertion of a client (what is dynamic?) what is different from insertion?
+    # FIXME: no usages found - do we store all this data???
     def getRegisterClientDynamically(self,user,content,expire):
 
+        # FIXME: what is dome of these fields is not passed ? Are all of them required by default??
+        # There are default values in models - they are in no use if content must contain all these values
         application_type=content['application_type']
         redirect_uris=content['redirect_uris']
         client_name=content['client_name']
@@ -339,7 +358,8 @@ class ClientDao(BaseDao):
         jwt_alg="HS256"
         default_scopes="openid,profile,address,phone,offline_access"
 
-        client=self._creatDynamicClient(
+        # FIXME: this is just passing given parameters to another function ...
+        client=_creatDynamicClient(
             client_name,
             client_id,
             client_secret,
@@ -398,15 +418,16 @@ class ClientDao(BaseDao):
                 logging.exception(e)
         return client
 
-        return dic
-
-
+# FIXME: same as above - must be merged
     def saveClient(self,user,dic):
+        # FIXME: in this case client name also must be unique
         name=dic["client_name"]
         response_type=dic["response_type"]
         redirect_uris=dic["redirect_uris"]
         default_scopes =dic["default_scopes"]
         jwt_alg=dic["jwt_alg"]
+        # FIXME: get_rand_token is useless function from utils
+        # FIXME: generation of id and secret and then replacing them with existing ones??
         client_id =get_rand_token(60)
         client_secret = get_rand_token(30)
 
@@ -418,24 +439,32 @@ class ClientDao(BaseDao):
         client_id=client_id
         client_secret=client_secret
 
-        client=self._creatClient(name,client_id,client_secret,user,response_type,redirect_uris,default_scopes,jwt_alg)
+        client=_creatClient(name,client_id,client_secret,user,response_type,redirect_uris,default_scopes,jwt_alg)
         try:
             client.save(validate=False)
         except Exception as e:
             if 'duplicate' in e.args[0]:
                 logger.debug("oauth client %s already exist", client.client_name)
+                # FIXME: return created client but not one that is in database
                 return client
             else:
                 logging.exception(e)
         return client
 
+# FIXME: update client must take kwargs as argument for passing updating data
+# FIXME: it should also require a client_id for select
+# FIXME: no usages found
     def updateClient(self,client_id,name,response_type,redirect_uris,default_scopes,jwt_alg):
+        # select must happen though existing method
         client = Client.objects.get(client_id=client_id)
         try:
+            # FIXME: Raises OperationError if called on an object that has not yet been saved.
+            # FIXME: Makes Validation by default - default_scopes are passed as list but str is expected - fix in models
             client.update(client_name=name,response_type=response_type,redirect_uris=redirect_uris,default_scopes=default_scopes,jwt_alg=jwt_alg)
         except: # pragma: no cover
             logger.error('problem in updating client===')
             traceback.print_exc()
+        # FIXME: returning old client????
         return client
     def deleteClient(self,client):
         try:
@@ -447,25 +476,34 @@ class ClientDao(BaseDao):
 #######################################################
 ############### GRANT #####################
 
-class GrantDao(BaseDao):
+class GrantDao(object):
     def getAllGrants(self):
         grants=Grant.objects.all()
         return grants
     def getGrantByClientIdAndCode(self,client_id,code):
+        # FIXME: situation of requesting a non-existing grant is not handled
+        # FIXME: models.DoesNotExist: Code matching query does not exist.
+        # FIXME: Require passing a code object
         client = Client.objects.get(client_id=client_id)
         grant = Grant.objects.get(client=client, code=code)
         return grant
+    # FIXME: Code is not unique field in Grant model. We may have multiple grants with same code
+    # FIXME: no usages - is code unique for grant?
     def getGrantByCode(self,code):
+        # FIXME: situation of requesting a non-existing grant is not handled
+        # FIXME: models.DoesNotExist: Code matching query does not exist.
         grant = Grant.objects.get(code=code)
         return grant
 
     def saveGrant(self,user, client_id,code,nonce,auth,expire,redirect_uri,code_c,code_c_meth,scopes):
         logger.debug('######## DB SAVE CODE ######### %s',expire)
-        code_obj=self._creatCode(user, client_id,code,nonce,auth,expire,scopes,code_c,code_c_meth)
+        # FIXME: just fix the whole thing :/
+        code_obj=_creatCode(user, client_id,code,nonce,auth,expire,scopes,code_c,code_c_meth)
         try:
+            # FIXME: Must allow validation True
             code_obj.save(validate=False)
             logger.debug('######## DB SAVE GRANT #########')
-            grant = self._creatGrant(user, client_id, code_obj, redirect_uri,expire)
+            grant = _creatGrant(user, client_id, code_obj, redirect_uri,expire)
             try:
                 grant.save(validate=False)
             except Exception as e:
@@ -484,11 +522,13 @@ class GrantDao(BaseDao):
 #######################################################
 ############### CODE #####################
 
-class CodeDao(BaseDao):
+class CodeDao(object):
     def getAllCodes(self):
         codes=Code.objects.all()
         return codes
     def getCodeByCode(self,code):
+        # FIXME: situation of requesting a non-existing code is not handled
+        # FIXME: models.DoesNotExist: Code matching query does not exist.
         code = Code.objects.get(code=code)
         return code
 
@@ -498,16 +538,19 @@ class CodeDao(BaseDao):
 #######################################################
 ############### TOKEN #####################
 
-class TokenDao(BaseDao):
+class TokenDao(object):
+    # FIXME: Token is for MagenClient and not for Application Client
     def getAllTokens(self):
         tokens=Token.objects.all()
         return tokens
     def getTokenByClientAndRefreshToken(self,ref_token,client):
+        # FIXME: models.DoesNotExist: Code matching query does not exist.
+        # FIXME: if token doesn't exists - exception raised
         token = Token.objects.get(refresh_token=ref_token,client=client)
         return token
-    def getTokenByClientAndRefreshToken(self,client):
-        token = Token.objects.get(client=client)
-        return token
+    # def getTokenByClientAndRefreshToken(self,client):
+    #     token = Token.objects.get(client=client)
+    #     return token
     def getTokenByAccessToken(self,access_token):
         token = Token.objects.get(access_token=access_token)
         return token
@@ -516,7 +559,7 @@ class TokenDao(BaseDao):
         return token
 
     def saveToken(self,user, client,access_token,refresh_token,_id_token,encoded_token,_scopes,expire,magen_client_id):
-        token = self._creatToken(user, client,access_token,refresh_token,_id_token,encoded_token,_scopes,expire,magen_client_id)
+        token = _creatToken(user, client,access_token,refresh_token,_id_token,encoded_token,_scopes,expire,magen_client_id)
         try:
             token.save(validate=False)
         except Exception as e:
@@ -531,7 +574,7 @@ class TokenDao(BaseDao):
 #######################################################
 ############### USER #####################
 
-class ServiceDao(BaseDao):
+class ServiceDao(object):
     def getAllServices(self):
         services=Service.objects.all()
         return services
@@ -543,6 +586,7 @@ class ServiceDao(BaseDao):
 
         return service
     def saveService(self,request,state,external_token_info):
+        # FIXME: We can't accept Flask request object as a parameter for this function
         nonce=request.args.get('nonce')
         response_type=request.args.get('response_type')
         code_c=request.args.get('code_c')
@@ -551,7 +595,7 @@ class ServiceDao(BaseDao):
         scopes=request.args.get('scopes')
         redirect_uri=request.args.get('redirect_uri')
         username=request.args.get('username')
-        service=self._creatService(state, nonce,response_type,code_c,code_c_meth,client_id,scopes,redirect_uri,username,external_token_info)
+        service=_creatService(state, nonce,response_type,code_c,code_c_meth,client_id,scopes,redirect_uri,username,external_token_info)
         try:
             service.save(validate=False)
         except Exception as e:
@@ -565,7 +609,7 @@ class ServiceDao(BaseDao):
 
 
 
-class ExtIdpDao(BaseDao):
+class ExtIdpDao(object):
     def getAllIdps(self):
         idps=ExtIdp.objects.all()
         return idps
@@ -593,7 +637,7 @@ class ExtIdpDao(BaseDao):
         code_challenge = request.form["code_challenge"]
         code_challenge_method = request.form["code_challenge_method"]
         token_info_url= request.form["token_info_url"]
-        idp=self._creatIdp(name,desc,client_id,client_secret,authz_url,token_url,user_info_url,redirect_uri,scopes,code_challenge,code_challenge_method,token_info_url)
+        idp=_creatIdp(name,desc,client_id,client_secret,authz_url,token_url,user_info_url,redirect_uri,scopes,code_challenge,code_challenge_method,token_info_url)
         try:
             idp.save(validate=False)
         except Exception as e:
@@ -618,7 +662,7 @@ class ExtIdpDao(BaseDao):
     code_challenge_method=None,
     token_info_url=None):
 
-        idp=self._creatIdp(name,desc,client_id,client_secret,authz_url,token_url,user_info_url,redirect_uri,scopes,code_challenge,code_challenge_method,token_info_url)
+        idp=_creatIdp(name,desc,client_id,client_secret,authz_url,token_url,user_info_url,redirect_uri,scopes,code_challenge,code_challenge_method,token_info_url)
         try:
             idp.save(validate=False)
         except Exception as e:
