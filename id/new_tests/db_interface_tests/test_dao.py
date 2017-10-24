@@ -3,20 +3,8 @@
 
 import unittest
 import datetime
-import mongoengine
-import mongoengine.connection as mongo_connection
-from magen_utils_apis import domain_resolver
-#
-# from .test_models import mongo_object_to_dict
 
-# # Package imports from local PIP
-# from magen_rest_apis.magen_app import MagenApp
-# # If this is being run from workspace (as main module),
-# # import dev/magen_env.py to add workspace package directories.
-# src_ver = MagenApp.app_source_version(__name__)
-# if src_ver:
-#     # noinspection PyUnresolvedReferences
-#     import dev.magen_env
+from .db_test_base import TestBaseMongoengine
 
 from id.id_service.magenid.idsapp.idsserver.lib.db.models.models import Domain, Client, Code, Grant, Token
 from id.id_service.magenid.idsapp.idsserver.lib.db.models.magen_client_models import MagenUser
@@ -148,27 +136,7 @@ def _insert_test_token(token_data):
     return test_token
 
 
-class TestBase(unittest.TestCase):
-    """Test suit Test Base class for mongo connection"""
-    test_db = None
-
-    @classmethod
-    def setUpClass(cls):
-        mongo_ip, mongo_port = domain_resolver.mongo_host_port()
-        # FIXME:
-        # Other tests are failing, because mongoengine is not disconnected from  default databased
-        # which is not test database, but operational. Needs fixing
-        # register_connection as default is a hack to avoid test failure
-        mongo_connection.register_connection('default', 'test_id_db', host=mongo_ip, port=mongo_port)
-        cls.test_db = mongoengine.connect(db='test_id_db', host=mongo_ip, port=mongo_port)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.test_db.drop_database('test_id_db')
-        mongo_connection.disconnect('test_id_db')
-
-
-class TestDomainDao(TestBase):
+class TestDomainDao(TestBaseMongoengine):
     """Test suit for DomainDao class"""
 
     def setUp(self):
@@ -221,7 +189,7 @@ class TestDomainDao(TestBase):
         self.assertEqual(selected_domain, saved_domain)
 
 
-class TestClientDao(TestBase):
+class TestClientDao(TestBaseMongoengine):
     """Test suit for ClientDao class"""
 
     def setUp(self):
@@ -383,9 +351,7 @@ class TestClientDao(TestBase):
         self.assertEqual(selected_client.default_scopes, client.default_scopes)
 
 
-
-
-class TestCodeDao(TestBase):
+class TestCodeDao(TestBaseMongoengine):
     """Test Suit for CodeDao class"""
 
     def setUp(self):
@@ -501,7 +467,7 @@ class TestCodeDao(TestBase):
         self.assertFalse(Code.objects.all())
 
 
-class TestGrantDao(TestBase):
+class TestGrantDao(TestBaseMongoengine):
     """Test suit for GrantDao class"""
 
     def setUp(self):
@@ -600,7 +566,7 @@ class TestGrantDao(TestBase):
         self.assertIsNone(not_existing_grant)
 
 
-class TestTokenDao(TestBase):
+class TestTokenDao(TestBaseMongoengine):
     """Test Suit TokenDao class"""
 
     def setUp(self):
