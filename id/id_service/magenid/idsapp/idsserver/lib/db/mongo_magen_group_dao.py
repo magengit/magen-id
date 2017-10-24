@@ -15,6 +15,6 @@ class MongoMagenUserGroup(Dao):
     """
 
     def get_collection(self):
-        """Get MagenClient mongo collection"""
+        """Get Magen User Group mongo collection"""
         mongo_id_db = IdDatabase.get_iddb_instance()
         return mongo_id_db.magen_user_group

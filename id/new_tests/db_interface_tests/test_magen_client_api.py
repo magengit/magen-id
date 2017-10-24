@@ -122,8 +122,7 @@ class TestMagenClientAPI(TestBasePyMongo):
 
         # Update non-existing document
         result = self.mc_api.update_client(update_dict, mc_id=MAGEN_CLIENT['mc_id'])
-        # FIXME: update in concrete_dao returns True, but False expected
-        # self.assertFalse(result.success)
+        self.assertTrue(result.success)
         self.assertEqual(result.count, 0)
 
         # Inserting client in Database

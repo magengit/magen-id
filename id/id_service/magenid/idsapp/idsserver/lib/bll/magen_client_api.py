@@ -51,7 +51,7 @@ class MagenClientApi(object):
         mongo_result = self.magen_client_strategy.insert(client_dict)
         if not mongo_result.success:
             mongo_result.message = 'Magen Client ID (mc_id) must be unique!' \
-                if mongo_result.db_exception.code == 11000 \
+                if mongo_result.code == 11000 \
                 else mongo_result.message
         return mongo_result
 

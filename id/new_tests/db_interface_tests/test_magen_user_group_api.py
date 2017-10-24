@@ -96,8 +96,7 @@ class TestMagenUserGroupAPI(TestBasePyMongo):
 
         # Update non-existing document
         updated = self.mu_group.update_group(group_name=USER_GROUP['ug_name'], data=update_dict)
-        # FIXME: update in concrete_dao returns True, but False expected
-        # self.assertFalse(updated.success)
+        self.assertTrue(updated.success)
         self.assertEqual(updated.count, 0)
 
         # Inserting group into Database
