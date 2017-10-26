@@ -13,6 +13,7 @@ class MongoMagenUserGroup(Dao):
     PK: ug_name - magen group name (required, unique)
     ug_id       - magen group id (integer)
     """
+    uuid_field_name = 'ug_name'
 
     def get_collection(self):
         """Get Magen User Group mongo collection"""

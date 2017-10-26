@@ -87,3 +87,21 @@ class MagenUserGroupApi(object):
             action: data
         }
         return self.magen_user_group_strategy.update(seed, update_dict)
+
+    def replace_group(self, ug_name: str, new_data: dict):
+        """
+        Replace Magen User Group data in Database
+
+        :param ug_name: user group name
+        :type ug_name: str
+        :param new_data: replacement data
+        :type new_data: dict
+
+        :return: response object
+        :rtype: MongoReturn
+        """
+        new_data['ug_name'] = ug_name
+        seed = dict(ug_name=ug_name)
+        result = self.magen_user_group_strategy.replace(seed, new_data)
+        result.documents.pop('_id')
+        return result

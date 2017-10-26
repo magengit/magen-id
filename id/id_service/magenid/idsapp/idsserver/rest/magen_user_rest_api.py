@@ -52,6 +52,8 @@ def add_magen_user_v3():
     This request allows to create a new user.
     Error will be generated if attempting to register user with same `username` or `user_uuid` again
 
+    URL: http://{host:port}/magen/id/v3/users/user/
+
     Payload Example:
 
     {"user": [{
@@ -158,6 +160,8 @@ def get_magen_user_v3(user_uuid):
     """
     Get Magen User by user_uuid
 
+    URL: http://{host:port}/magen/id/v3/users/user/<user_uuid>/
+
     :param user_uuid: user id
     :type user_uuid: str
 
@@ -218,6 +222,8 @@ def get_magen_users():
     """
     Get All registered Magen Users
 
+    URL: http://{host:port}/magen/id/v3/users/
+
     Response Example:
     {"response": {
         "cause": "OK",
@@ -277,6 +283,8 @@ def delete_magen_user_v3(user_uuid):
     """
     Delete Magen User by user_uuid
 
+    URL: http://{host:port}/magen/id/v3/users/user/
+
     Response Example:
     {"response": {
         "cause": "Document deleted",
@@ -319,6 +327,8 @@ def replace_magen_user_v3():
     """
     PUT REST request for replacing Magen User.
     This request allows to create a new user or replace user data for existing user
+
+    URL: http://{host:port}/magen/id/v3/users/user/
 
     Payload Example:
 
