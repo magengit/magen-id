@@ -1,9 +1,8 @@
 # coding=utf-8
 """Test Suit for Magen User API"""
 
-from .db_test_base import TestBasePyMongo
 from id.id_service.magenid.idsapp.idsserver.lib.bll.magen_user_api import MagenUserApi
-
+from id.new_tests.db_test_base import TestBasePyMongo
 
 MAGEN_USER = dict(
     user_uuid='test_uuid',
@@ -142,3 +141,35 @@ class TestMagenUserAPI(TestBasePyMongo):
         self.assertEqual(selected.documents['username'], update_dict['username'])
         self.assertEqual(selected.documents['role'], update_dict['role'])
         self.assertEqual(selected.documents['department'], update_dict['department'])
+
+    def test_replace_user(self):
+        """Test Replace user data with new data"""
+
+        replacement_data = dict(
+            username='test_new_username',
+            first_name='test_new_first_name',
+            last_name='test_new_last_name',
+            password='test_new_password',
+            email='test_new_email',
+            role='test_new_role',
+            position='test_new_position',
+            display_name='test_new_display_name'
+        )
+
+        # Replace non-existing user will insert a new user in Database
+        replaced = self.user_api.replace_user(MAGEN_USER['user_uuid'], replacement_data)
+        self.assertTrue(replaced.success)
+
+        # Verify that user was inserted
+        selected = self.user_api.get_user(MAGEN_USER['user_uuid'])
+        self.assertTrue(selected.success)
+        self.assertEqual(selected.documents['username'], 'test_new_username')
+
+        # Replace existing use with MAGEN_USER data
+        replaced = self.user_api.replace_user(MAGEN_USER['user_uuid'], MAGEN_USER)
+        self.assertTrue(replaced.success)
+        # Verify username has changed
+        self.assertEqual(replaced.documents['username'], 'test_username')
+        # Verify that registration timestamp was not changed
+        # if registration timestamp is in replacement data the old one gets replaced
+        self.assertEqual(selected.documents['registered_on'], replaced.documents['registered_on'])

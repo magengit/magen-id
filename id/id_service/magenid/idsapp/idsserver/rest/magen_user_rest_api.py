@@ -1,14 +1,17 @@
 import logging
 import uuid
+import functools
 
-from flask import request
+from flask import request, Blueprint
+from werkzeug.exceptions import BadRequest
 from http import HTTPStatus
 from magen_rest_apis.rest_server_apis import RestServerApis
-from magen_rest_apis.rest_client_apis import RestClientApis
 
+from id.id_service.magenid.idsapp.idsserver.lib.bll.magen_user_api import MagenUserApi
 from id.id_service.magenid.idsapp.idsserver.lib.bll.user_api import UserApi
 from magen_logger.logger_config import LogDefaults
 
+from id.id_service.magenid.idsapp.idsserver.rest import rest_utils
 from id.id_service.magenid.idsapp.idsserver.views.home import *
 
 logger = logging.getLogger(LogDefaults.default_log_name)
@@ -26,6 +29,364 @@ __status__ = "alpha"
 #         delete /magen/id/v2.0/users/user/{user_uuid}/
 #         post  /magen/id/v2.0/users/user/
 #         get /magen/id/v2.0/users/
+
+MAGEN_USER_URLS = dict(
+    base_v2='/magen/id/v2/users',
+    base_v3='/magen/id/v3/users',
+    users='/',
+    user='/user/',
+    user_uuid='/user/{}/'
+)
+
+magen_user_bp = Blueprint('magen_user_bp', __name__, url_prefix=MAGEN_USER_URLS['base_v3'])
+
+
+SERVER_500_GEN_CAUSE = 'Server could not process this request'
+SERVER_500_ATTR_CAUSE = 'DB Connection Failed'
+
+
+@magen_user_bp.route(MAGEN_USER_URLS['user'], methods=['POST'])
+def add_magen_user_v3():
+    """
+    POST REST request for registering Magen User.
+    This request allows to create a new user.
+    Error will be generated if attempting to register user with same `username` or `user_uuid` again
+
+    Payload Example:
+
+    {"user": [{
+         "first_name": "Mizan",
+         "last_name": "Chowdhury",
+         "display_name":"Mizan Chowdhury",
+         "password": "pw",
+         "department":"R&D",
+         "position":"lead",
+         "role":"lead",
+         "idp": "magen",
+         "u_groups": [
+            "finance"
+         ],
+         "u_clients":[],
+         "username": "michowdh@cisco.com",
+         "email": "michowdh@cisco.com",
+         "imgSrc": "user_mizanul_chowdhury.png"
+        }]
+    }
+
+    Response Example:
+    {"response": {
+        "cause": "Created",
+        "success": true,
+        "user": {
+            "department": "R&D",
+            "display_name": "Mizan Chowdhury",
+            "email": "michowdh@cisco.com",
+            "email_verified": true,
+            "first_name": "Mizan",
+            "idp": "magen",
+            "photo": "user_mizanul_chowdhury.png",
+            "last_name": "Chowdhury",
+            "password": "pw",
+            "position": "lead",
+            "registered_on": 1509017843,
+            "role": "lead",
+            "u_clients": [],
+            "u_groups": [
+                "finance"
+            ],
+            "user_uuid": "816bed5a-bdcc-400f-97ee-c6b2698d8156",
+            "username": "michowdh@cisco.com"
+        }
+    },
+    "status": 201,
+    "title": "Magen User creation Request"
+    }
+
+    [Note]: `username`, `first_name`, `last_name`, `password`, `email` - are required fields for request to be processed
+    `user_uuid` will be generated and assigned if not provided.
+    `username` and `user_uuid` must contain unique values
+
+    :return: Response from server
+    :rtype: JSON
+    """
+    partial_respond = functools.partial(RestServerApis.respond, title='Magen User creation Request')
+    magen_user = MagenUserApi()
+    required_keys = ['username', 'first_name', 'last_name', 'password', 'email']
+    try:
+        user_dict = request.json['user'][0]
+        status, missing_keys = rest_utils.check_payload(user_dict, required_keys)
+    except BadRequest as err:
+        # JSON violation
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.BAD_REQUEST, response=dict(
+            success=False, cause='Bad Payload Data: {}'.format(err.description), user=None))
+    except (KeyError, IndexError) as err:
+        # Payload format violation
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.BAD_REQUEST, response=dict(
+            success=False, cause='Bad Payload Data: {} is expected'.format(str(err)), user=None))
+    except TypeError as err:
+        # Payload type violation
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.BAD_REQUEST, response=dict(
+            success=False, cause='Bad Payload type: JSON expected', user=None))
+    if not status:
+        return partial_respond(http_status=HTTPStatus.BAD_REQUEST, response=dict(
+            success=status, cause='Bad Payload: {} is/are missing'.format(str(missing_keys)), user=user_dict))
+    try:
+        result = magen_user.insert_user(user_dict)
+        success = result.success & result.count
+        if success:
+            return partial_respond(http_status=HTTPStatus.CREATED, response=dict(
+                success=bool(success), cause=HTTPStatus.CREATED.phrase, user=user_dict))
+        if result.code == 11000:
+            # Attempt to insert same data
+            return partial_respond(http_status=HTTPStatus.BAD_REQUEST, response=dict(
+                success=success, cause=result.message, user=user_dict))
+    except AttributeError as err:
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
+            success=False, cause=SERVER_500_ATTR_CAUSE, user=user_dict))
+    except Exception as err:
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
+            success=False, cause=SERVER_500_GEN_CAUSE, user=user_dict))
+
+
+@magen_user_bp.route(MAGEN_USER_URLS['user_uuid'].format('<user_uuid>'))
+def get_magen_user_v3(user_uuid):
+    """
+    Get Magen User by user_uuid
+
+    :param user_uuid: user id
+    :type user_uuid: str
+
+    Response Example:
+    {"response": {
+        "cause": "OK",
+        "success": true,
+        "user": {
+            "department": "R&D",
+            "display_name": "Mizan Chowdhury",
+            "email": "michowdh@cisco.com",
+            "email_verified": true,
+            "first_name": "Mizan",
+            "idp": "magen",
+            "photo": "user_mizanul_chowdhury.png",
+            "last_name": "Chowdhury",
+            "password": "pw",
+            "position": "lead",
+            "registered_on": 1509017843,
+            "role": "lead",
+            "u_clients": [],
+            "u_groups": [
+                "finance"
+            ],
+            "user_uuid": "816bed5a-bdcc-400f-97ee-c6b2698d8156",
+            "username": "michowdh@cisco.com"
+        }
+    },
+    "status": 200,
+    "title": "Get a Magen User Request"
+    }
+
+    return: Response from server
+    :rtype: JSON
+    """
+    partial_respond = functools.partial(RestServerApis.respond, title='Get a Magen User Request')
+    magen_user = MagenUserApi()
+    try:
+        result = magen_user.get_user(user_uuid)
+        success = bool(result.success & result.count)
+    except AttributeError as err:
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
+            success=False, cause=SERVER_500_ATTR_CAUSE, user=None))
+    except Exception as err:
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
+            success=False, cause=SERVER_500_GEN_CAUSE, user=None))
+    if success:
+        res = result.to_dict()
+        return partial_respond(response=dict(success=success, cause=HTTPStatus.OK.phrase, user=res['json']))
+    return partial_respond(http_status=HTTPStatus.NOT_FOUND,
+                           response=dict(success=success, cause='Magen User is not found', user=None))
+
+
+@magen_user_bp.route(MAGEN_USER_URLS['users'])
+def get_magen_users():
+    """
+    Get All registered Magen Users
+
+    Response Example:
+    {"response": {
+        "cause": "OK",
+        "success": true,
+        "users": [
+            {
+                "department": "R&D",
+                "display_name": "Mizan Chowdhury",
+                "email": "michowdh@cisco.com",
+                "email_verified": true,
+                "first_name": "Mizan",
+                "idp": "magen",
+                "imgSrc": "user_mizanul_chowdhury.png",
+                "last_name": "Chowdhury",
+                "password": "pw",
+                "position": "lead",
+                "registered_on": 1509017843,
+                "role": "lead",
+                "u_clients": [],
+                "u_groups": [
+                    "finance"
+                ],
+                "user_uuid": "816bed5a-bdcc-400f-97ee-c6b2698d8156",
+                "username": "michowdh@cisco.com"
+            }
+        ]
+    },
+    "status": 200,
+    "title": "Get All Magen Users Request"
+    }
+
+    return: Response from server
+    :rtype: JSON
+    """
+    partial_respond = functools.partial(RestServerApis.respond, title='Get All Magen Users Request')
+    magen_user = MagenUserApi()
+    try:
+        result = magen_user.get_all()
+        success = bool(result.success & result.count)
+    except AttributeError as err:
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
+            success=False, cause=SERVER_500_ATTR_CAUSE, users=None))
+    except Exception as err:
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
+            success=False, cause=SERVER_500_GEN_CAUSE, users=None))
+    if success:
+        res = result.to_dict()
+        return partial_respond(response=dict(success=success, cause=HTTPStatus.OK.phrase, users=res['json']))
+    return partial_respond(http_status=HTTPStatus.NOT_FOUND,
+                           response=dict(success=success, cause='No Magen Users found', users=None))
+
+
+@magen_user_bp.route(MAGEN_USER_URLS['user_uuid'].format('<user_uuid>'), methods=['DELETE'])
+def delete_magen_user_v3(user_uuid):
+    """
+    Delete Magen User by user_uuid
+
+    Response Example:
+    {"response": {
+        "cause": "Document deleted",
+        "success": true,
+        "user": {
+            "removed": 1
+        }
+    },
+    "status": 200,
+    "title": "Delete a Magen User Request"
+    }
+
+    :param user_uuid: user id
+    :type user_uuid: str
+
+    return: Response from server
+    :rtype: JSON
+    """
+    partial_respond = functools.partial(RestServerApis.respond, title='Delete a Magen User Request')
+    magen_user = MagenUserApi()
+    try:
+        result = magen_user.delete_user(user_uuid)
+    except AttributeError as err:
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
+            success=False, cause=SERVER_500_ATTR_CAUSE, user=None))
+    except Exception as err:
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
+            success=False, cause=SERVER_500_GEN_CAUSE, user=None))
+    if not result.count:
+        return partial_respond(response=dict(success=result.success, cause='Document does not exist',
+                                             user=dict(removed=int(result.count))))
+    return partial_respond(response=dict(success=result.success, cause=result.message,
+                                         user=dict(removed=int(result.count))))
+
+
+@magen_user_bp.route(MAGEN_USER_URLS['user'], methods=['PUT'])
+def replace_magen_user_v3():
+    """
+    PUT REST request for replacing Magen User.
+    This request allows to create a new user or replace user data for existing user
+
+    Payload Example:
+
+    {"user": [{
+         "user_uuid": "c9d0388e-76ea-48f7-9df4-62ea95a27649"
+         "first_name": "Mizan",
+         "last_name": "Chowdhury",
+         "display_name":"Mizan Chowdhury",
+         "password": "pw",
+         "department":"R&D",
+         "position":"lead",
+         "role":"lead",
+         "idp": "magen",
+         "u_groups": [
+            "finance"
+         ],
+         "u_clients":[],
+         "username": "michowdh@cisco.com",
+         "email": "michowdh@cisco.com",
+         "photo": "user_mizanul_chowdhury.png"
+        }]
+    }
+
+    [Note]: `user_uuid`, `username`, `first_name`, `last_name`, `password`, `email` - are required fields for request to be processed
+
+    :return: Response from server
+    :rtype: JSON
+    """
+    partial_respond = functools.partial(RestServerApis.respond, title='Update Magen User Request')
+    magen_user = MagenUserApi()
+    required_keys = ['user_uuid', 'username', 'first_name', 'last_name', 'password', 'email']
+    try:
+        user_dict = request.json['user'][0]
+        status, missing_keys = rest_utils.check_payload(user_dict, required_keys)
+    except BadRequest as err:
+        # JSON violation
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.BAD_REQUEST, response=dict(
+            success=False, cause='Bad Payload Data: {}'.format(err.description), user=None))
+    except (KeyError, IndexError) as err:
+        # Payload format violation
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.BAD_REQUEST, response=dict(
+            success=False, cause='Bad Payload Data: {} is expected'.format(str(err)), user=None))
+    except TypeError as err:
+        # Payload type violation
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.BAD_REQUEST, response=dict(
+            success=False, cause='Bad Payload type: JSON expected', user=None))
+    if not status:
+        return partial_respond(http_status=HTTPStatus.BAD_REQUEST, response=dict(
+            success=status, cause='Bad Payload: {} is/are missing'.format(str(missing_keys)), user=user_dict))
+    try:
+        result = magen_user.replace_user(user_dict['user_uuid'], user_dict)
+        if result.success:
+            return partial_respond(http_status=HTTPStatus.OK, response=dict(
+                success=bool(result.success), cause=HTTPStatus.OK.phrase, user=user_dict))
+        else:
+            return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
+                success=False, cause=SERVER_500_GEN_CAUSE, user=user_dict))
+    except AttributeError as err:
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
+            success=False, cause=SERVER_500_ATTR_CAUSE, user=user_dict))
+    except Exception as err:
+        logger.error(err)
+        return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
+            success=False, cause=SERVER_500_GEN_CAUSE, user=user_dict))
 
 
 @ids.route('/magen/id/v2/users/user/', methods=["POST"])

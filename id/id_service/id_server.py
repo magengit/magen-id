@@ -82,6 +82,28 @@ signal.signal(signal.SIGINT, signal_handler)
 server_urls = ServerUrls.get_instance()
 SERVER_PORT = server_urls.identity_port
 
+DB_NAME = 'magen_id_v2'
+
+
+from id.id_service.magenid.idsapp.idsserver.lib.db.id_service_db import IdDatabase, MongoId
+# from id.id_service.magenid.idsapp.idsserver.lib.db.mongo_magen_client_dao import MongoMagenClient
+# from id.id_service.magenid.idsapp.idsserver.lib.db.mongo_magen_group_dao import MongoMagenUserGroup
+from id.id_service.magenid.idsapp.idsserver.lib.db.mongo_magen_user_dao import MongoMagenUser
+
+from id.id_service.magenid.idsapp.idsserver.rest.magen_user_rest_api import magen_user_bp
+
+from magen_utils_apis import domain_resolver
+
+
+def new_db_init():
+    mongo_ip, mongo_port = domain_resolver.mongo_host_port()
+    db = IdDatabase()
+    db.id_service_db = MongoId.get_instance()
+    # db.id_service_db.magen_client_strategy = MongoMagenClient.get_instance()
+    # db.id_service_db.magen_user_group_strategy = MongoMagenUserGroup.get_instance()
+    db.id_service_db.magen_user_strategy = MongoMagenUser.get_instance()
+    db.id_service_db.initialize(host=mongo_ip, port=mongo_port, db_name=DB_NAME)
+
 if args.test:
     ids.config['MODE'] = "test"
     mongo_server_ip, mongo_port = mongo_host_port()
@@ -169,6 +191,10 @@ else:
             domaindao.saveDomain(name=d["name"], idp=d["idp"], allow=True)
         domaindao.saveDomain(name=d["name"], idp=d["idp"], allow=False)
 
+    # NEW DATABASE INIT
+    new_db_init()
+
+    ids.register_blueprint(magen_user_bp)
     # context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
     # context.load_cert_chain('/etc/ssl/certs/server.crt', '/etc/ssl/certs/server.key')
     ids.run(host='0.0.0.0', debug=True, port=SERVER_PORT, threaded=True)

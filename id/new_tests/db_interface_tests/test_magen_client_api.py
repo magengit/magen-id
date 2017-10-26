@@ -3,8 +3,8 @@
 
 import typing
 
-from .db_test_base import TestBasePyMongo
 from id.id_service.magenid.idsapp.idsserver.lib.bll.magen_client_api import MagenClientApi
+from id.new_tests.db_test_base import TestBasePyMongo
 
 
 MAGEN_CLIENT = dict(
