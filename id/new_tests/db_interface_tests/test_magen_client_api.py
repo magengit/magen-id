@@ -3,20 +3,36 @@
 
 import typing
 
-from .db_test_base import TestBasePyMongo
+from ..db_test_base import TestBasePyMongo
 from id.id_service.magenid.idsapp.idsserver.lib.bll.magen_client_api import MagenClientApi
+from id.id_service.magenid.idsapp.idsserver.lib.bll.magen_user_api import MagenUserApi
 
 
 MAGEN_CLIENT = dict(
-            mc_id='test_mc_id',
-            # FIXME: user to username
-            user='test_username',
-            # FIXME: device_id to device_type
-            device_id='test_device_id',
-            ip='test_ip',
-            mac='test_mac',
-            revision='test_revision'
-        )
+    mc_id='test_mc_id',
+    # FIXME: user to username
+    user='test_username',
+    # FIXME: device_id to device_type
+    device_id='test_device_id',
+    ip='test_ip',
+    mac='test_mac',
+    revision='test_revision'
+)
+
+MAGEN_USER = dict(
+    # user_uuid='test_uuid',
+    username='test_username',
+    first_name='test_first_name',
+    last_name='test_last_name',
+    password='test_password',
+    email='test_email',
+    role='test_role',
+    idp='test_idp',
+    department='test_department',
+    photo='test_photo',
+    position='test_position',
+    display_name='test_display_name'
+)
 
 
 class TestMagenClientAPI(TestBasePyMongo):
@@ -24,9 +40,11 @@ class TestMagenClientAPI(TestBasePyMongo):
 
     def setUp(self):
         self.mc_api = MagenClientApi()
+        self.user_api = MagenUserApi()
 
     def tearDown(self):
         TestMagenClientAPI.magen_client_collection.remove()
+        TestMagenClientAPI.magen_user_collection.remove()
 
     def test_insert_and_get_client(self):
         """Test Insertion and Selection of a Magen Client into Database"""
@@ -36,9 +54,16 @@ class TestMagenClientAPI(TestBasePyMongo):
         self.assertFalse(selected.success)
         self.assertIsNone(selected.documents)
 
-        # Inserting client into Database
-        result = self.mc_api.insert_client(MAGEN_CLIENT)
-        self.assertTrue(result.success)
+        # Inserting client into Database without User existing
+        self.assertRaises(ValueError, self.mc_api.insert_client, MAGEN_CLIENT)
+
+        # Insert user into Database
+        inserted = self.user_api.insert_user(MAGEN_USER)
+        self.assertTrue(inserted.success)
+
+        # Insert client into Database
+        inserted = self.mc_api.insert_client(MAGEN_CLIENT)
+        self.assertTrue(inserted.success)
 
         # Verify that document was inserted
         selected = self.mc_api.get_client(MAGEN_CLIENT['mc_id'])
@@ -57,15 +82,24 @@ class TestMagenClientAPI(TestBasePyMongo):
         result = self.mc_api.delete_client(MAGEN_CLIENT['mc_id'])
         self.assertTrue(result.success)  # idempotent request
 
-        # Inserting client into Database
-        result = self.mc_api.insert_client(MAGEN_CLIENT)
-        self.assertTrue(result.success)
+        # Inserting client into Database without User existing
+        self.assertRaises(ValueError, self.mc_api.insert_client, MAGEN_CLIENT)
+
+        # Insert user into Database
+        inserted = self.user_api.insert_user(MAGEN_USER)
+        self.assertTrue(inserted.success)
+
+        # Insert client into Database
+        inserted = self.mc_api.insert_client(MAGEN_CLIENT)
+        self.assertTrue(inserted.success)
 
         # Delete client
         result = self.mc_api.delete_client(MAGEN_CLIENT['mc_id'])
         self.assertTrue(result.success)  # idempotent request
         # Verify that client was actually deleted
         self.assertIsNone(self.mc_api.get_client(MAGEN_CLIENT['mc_id']).documents)
+        # Verify that client was removed from user
+        self.assertFalse(self.user_api.get_user(MAGEN_USER['user_uuid']).documents['u_clients'])
 
     def test_get_by_user_device_id(self):
         """Test Selection of a client by user and device type"""
@@ -75,6 +109,10 @@ class TestMagenClientAPI(TestBasePyMongo):
         self.assertTrue(selected.success)
         self.assertIsInstance(selected.documents, typing.List)
         self.assertFalse(selected.documents)  # empty list returned
+
+        # Insert user into Database
+        inserted = self.user_api.insert_user(MAGEN_USER)
+        self.assertTrue(inserted.success)
 
         # Inserting a client into Database
         result = self.mc_api.insert_client(MAGEN_CLIENT)
@@ -92,6 +130,18 @@ class TestMagenClientAPI(TestBasePyMongo):
         selected = self.mc_api.get_all()
         self.assertTrue(selected.success)
         self.assertFalse(selected.documents)
+
+        # Insert user into Database
+        inserted = self.user_api.insert_user(MAGEN_USER)
+        self.assertTrue(inserted.success)
+
+        new_user = MAGEN_USER.copy()
+        new_user['username'] = 'test_another_user'
+        new_user.pop('user_uuid')
+
+        # Insert user into Database
+        inserted = self.user_api.insert_user(new_user)
+        self.assertTrue(inserted.success)
 
         # Inserting several clients
         result = self.mc_api.insert_client(MAGEN_CLIENT)
@@ -124,6 +174,10 @@ class TestMagenClientAPI(TestBasePyMongo):
         result = self.mc_api.update_client(update_dict, mc_id=MAGEN_CLIENT['mc_id'])
         self.assertTrue(result.success)
         self.assertEqual(result.count, 0)
+
+        # Insert user into Database
+        inserted = self.user_api.insert_user(MAGEN_USER)
+        self.assertTrue(inserted.success)
 
         # Inserting client in Database
         result = self.mc_api.insert_client(MAGEN_CLIENT)

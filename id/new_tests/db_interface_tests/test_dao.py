@@ -1,14 +1,13 @@
 # coding=utf-8
 """Test Suit for Dao module"""
 
-import unittest
 import datetime
+import unittest
 
-from .db_test_base import TestBaseMongoengine
-
-from id.id_service.magenid.idsapp.idsserver.lib.db.models.models import Domain, Client, Code, Grant, Token
-from id.id_service.magenid.idsapp.idsserver.lib.db.models.magen_client_models import MagenUser
 from id.id_service.magenid.idsapp.idsserver.lib.db import dao
+from id.id_service.magenid.idsapp.idsserver.lib.db.models.magen_client_models import MagenUser
+from id.id_service.magenid.idsapp.idsserver.lib.db.models.models import Domain, Client, Code, Grant, Token
+from id.new_tests.db_test_base import TestBaseMongoengine
 
 TEST_USERNAME = 'test_username'
 TEST_CLIENT_ID = 'test_client_id'

@@ -7,6 +7,19 @@ import uuid
 from id.id_service.magenid.idsapp.idsserver.lib.db.id_service_db import IdDatabase
 
 
+def _update_user_data(user_data: dict):
+    now_timestamp = datetime.datetime.now().timestamp()
+    utc_now_timestamp = datetime.datetime.utcfromtimestamp(now_timestamp).timestamp()
+    user_data['registered_on'] = user_data.get('registered_on', None) or int(utc_now_timestamp)
+    user_data['u_groups'] = user_data.get('u_groups', None) or list()
+    # User registration happens before clients registration
+    user_data['u_clients'] = list()
+    user_data['email_verified'] = True
+    if 'user_uuid' not in user_data:
+        user_data['user_uuid'] = str(uuid.uuid4())
+    return user_data
+
+
 class MagenUserApi(object):
     """
     Magen User API
@@ -18,6 +31,7 @@ class MagenUserApi(object):
     def __init__(self):
         self.id_db = IdDatabase.get_iddb_instance()
         self.magen_user_strategy = self.id_db.magen_user_strategy
+        self.magen_client_strategy = self.id_db.magen_client_strategy
 
     def insert_user(self, user_data: dict):
         """
@@ -27,17 +41,9 @@ class MagenUserApi(object):
         :type user_data: dict
 
         :return: response object
-        :rtype: MongoReturn object
+        :rtype: MongoReturn
         """
-        now_timestamp = datetime.datetime.now().timestamp()
-        utc_now_timestamp = datetime.datetime.utcfromtimestamp(now_timestamp).timestamp()
-        user_data['registered_on'] = utc_now_timestamp
-        user_data['u_groups'] = user_data['u_groups'] if 'u_groups' in user_data else list()
-        # User registration happens before clients registration
-        user_data['u_clients'] = list()
-        user_data['email_verified'] = True
-        if 'user_uuid' not in user_data:
-            user_data['user_uuid'] = str(uuid.uuid4())
+        user_data = _update_user_data(user_data)
         mongo_result = self.magen_user_strategy.insert(user_data)
         if not mongo_result.success:
             mongo_result.message = 'Magen User ID (user_uuid) and Username (username) must be unique!' \
@@ -53,9 +59,16 @@ class MagenUserApi(object):
         :type user_uuid: str
 
         :return: response object
-        :rtype: MongoReturn object
+        :rtype: MongoReturn
         """
         seed = dict(user_uuid=user_uuid)
+        user = self.get_user(user_uuid)
+        if not user.success:
+            return self.magen_user_strategy.delete(seed)
+        user_clients = user.documents['u_clients']
+        removed = []
+        for client_id in user_clients:
+            removed.append(self.magen_client_strategy.delete(dict(mc_id=client_id)))
         return self.magen_user_strategy.delete(seed)
 
     def update_user(self, user_uuid: str, new_data: dict, action='set'):
@@ -70,7 +83,7 @@ class MagenUserApi(object):
         :type action: str
 
         :return: response object
-        :rtype: MongoReturn object
+        :rtype: MongoReturn
         """
         seed = dict(user_uuid=user_uuid)
         action = '$' + action  # MongoDb specifics
@@ -84,7 +97,7 @@ class MagenUserApi(object):
         Select all Magen users from Database
 
         :return: response object
-        :rtype: MongoReturn object
+        :rtype: MongoReturn
         """
         return self.magen_user_strategy.select_all()
 
@@ -96,7 +109,7 @@ class MagenUserApi(object):
         :type user_uuid: str
 
         :return: response object
-        :rtype: MongoReturn object
+        :rtype: MongoReturn
         """
         seed = dict(user_uuid=user_uuid)
         return self.magen_user_strategy.find_one_filter(seed)
@@ -109,7 +122,26 @@ class MagenUserApi(object):
         :type username: str
 
         :return: response object
-        :rtype: MongoReturn object
+        :rtype: MongoReturn
         """
         seed = dict(username=username)
         return self.magen_user_strategy.find_one_filter(seed)
+
+    def replace_user(self, user_uuid: str, new_data: dict):
+        """
+        Replace Magen User data in Database
+
+        :param user_uuid: user id
+        :type user_uuid: str
+        :param new_data: replacement data
+        :type new_data: dict
+
+        :return: response object
+        :rtype: MongoReturn
+        """
+        new_data['user_uuid'] = user_uuid
+        user_data = _update_user_data(new_data)
+        seed = dict(user_uuid=user_uuid)
+        result = self.magen_user_strategy.replace(seed, user_data)
+        result.documents.pop('_id')
+        return result

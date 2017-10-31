@@ -27,6 +27,7 @@ class MongoMagenUser(Dao):
     u_clients       - clients registered under current user
     display_name    - user's nickname
     """
+    uuid_field_name = 'user_uuid'
 
     def get_collection(self):
         """Get Magen User mongo collection"""

@@ -3,8 +3,8 @@
 
 import typing
 
-from .db_test_base import TestBasePyMongo
 from id.id_service.magenid.idsapp.idsserver.lib.bll.magen_user_group_api import MagenUserGroupApi
+from id.new_tests.db_test_base import TestBasePyMongo
 
 
 USER_GROUP = dict(
@@ -111,3 +111,26 @@ class TestMagenUserGroupAPI(TestBasePyMongo):
         selected = self.mu_group.get_group_by_name(update_dict['ug_name'])
         self.assertTrue(selected.success)
         self.assertEqual(selected.documents['ug_id'], update_dict['ug_id'])
+
+    def test_replace_group(self):
+        """Test Replace user group data with new data"""
+
+        replacement_data = dict(
+            ug_id=100,
+            new_field='test_new_field'
+        )
+
+        # Replace non-existing user will insert a new group in Database
+        replaced = self.mu_group.replace_group(USER_GROUP['ug_name'], replacement_data)
+        self.assertTrue(replaced.success)
+
+        # Verify that group was inserted
+        selected = self.mu_group.get_group_by_name(USER_GROUP['ug_name'])
+        self.assertTrue(selected.success)
+        self.assertEqual(selected.documents['new_field'], 'test_new_field')
+
+        # Replace existing use with USER_GROUP data
+        replaced = self.mu_group.replace_group(USER_GROUP['ug_name'], USER_GROUP)
+        self.assertTrue(replaced.success)
+        # Verify username has changed
+        self.assertIsNone(replaced.documents.get('new_field'))
