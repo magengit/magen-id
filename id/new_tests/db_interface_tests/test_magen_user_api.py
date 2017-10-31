@@ -1,8 +1,10 @@
 # coding=utf-8
 """Test Suit for Magen User API"""
-
+from ..db_test_base import TestBasePyMongo
+from .test_magen_client_api import MAGEN_CLIENT
 from id.id_service.magenid.idsapp.idsserver.lib.bll.magen_user_api import MagenUserApi
-from id.new_tests.db_test_base import TestBasePyMongo
+from id.id_service.magenid.idsapp.idsserver.lib.bll.magen_client_api import MagenClientApi
+
 
 MAGEN_USER = dict(
     user_uuid='test_uuid',
@@ -25,6 +27,7 @@ class TestMagenUserAPI(TestBasePyMongo):
 
     def setUp(self):
         self.user_api = MagenUserApi()
+        self.client_api = MagenClientApi()
 
     def tearDown(self):
         TestMagenUserAPI.magen_user_collection.remove()
@@ -62,11 +65,17 @@ class TestMagenUserAPI(TestBasePyMongo):
         inserted = self.user_api.insert_user(MAGEN_USER)
         self.assertTrue(inserted.success)
 
+        # Inserting a client for this user into Database
+        inserted = self.client_api.insert_client(MAGEN_CLIENT)
+        self.assertTrue(inserted.success)
+
         # Delete user
         deleted = self.user_api.delete_user(MAGEN_USER['user_uuid'])
         self.assertTrue(deleted.success)
         # Verify that user was actually removed
         self.assertIsNone(self.user_api.get_user(MAGEN_USER['user_uuid']).documents)
+        # Verify that client was removed with the user
+        self.assertIsNone(self.client_api.get_client(MAGEN_CLIENT['mc_id']).documents)
 
     def test_get_all(self):
         """Test Select all users from Database"""

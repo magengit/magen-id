@@ -31,6 +31,7 @@ class MagenUserApi(object):
     def __init__(self):
         self.id_db = IdDatabase.get_iddb_instance()
         self.magen_user_strategy = self.id_db.magen_user_strategy
+        self.magen_client_strategy = self.id_db.magen_client_strategy
 
     def insert_user(self, user_data: dict):
         """
@@ -61,6 +62,13 @@ class MagenUserApi(object):
         :rtype: MongoReturn
         """
         seed = dict(user_uuid=user_uuid)
+        user = self.get_user(user_uuid)
+        if not user.success:
+            return self.magen_user_strategy.delete(seed)
+        user_clients = user.documents['u_clients']
+        removed = []
+        for client_id in user_clients:
+            removed.append(self.magen_client_strategy.delete(dict(mc_id=client_id)))
         return self.magen_user_strategy.delete(seed)
 
     def update_user(self, user_uuid: str, new_data: dict, action='set'):
@@ -137,4 +145,3 @@ class MagenUserApi(object):
         result = self.magen_user_strategy.replace(seed, user_data)
         result.documents.pop('_id')
         return result
-
