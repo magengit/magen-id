@@ -18,6 +18,7 @@ TEST_UUID = 'test_user_uuid'
 MAGEN_USER = """{
     "user": [
         {
+         "user_uuid": "",
          "first_name": "Mizan",
          "last_name": "Chowdhury",
          "display_name":"Mizan Chowdhury",
@@ -159,6 +160,10 @@ class TestMagenUserREST(TestBasePyMongo):
         self.assertIsNotNone(post_resp_data['response']['user'])
         # Verify that user_uuid was assigned and returned
         self.assertIn('user_uuid', post_resp_data['response']['user'])
+        # Verify that user_uuid value is not None
+        self.assertIsNotNone(post_resp_data['response']['user']['user_uuid'])
+        # Verify that user_uuid is not Empty
+        self.assertTrue(post_resp_data['response']['user']['user_uuid'])
 
         # POST same user again:
         post_resp_obj = self.test_id_app.post(

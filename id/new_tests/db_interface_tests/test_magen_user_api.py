@@ -1,10 +1,11 @@
 # coding=utf-8
 """Test Suit for Magen User API"""
+
 from ..db_test_base import TestBasePyMongo
 from .test_magen_client_api import MAGEN_CLIENT
-from id.id_service.magenid.idsapp.idsserver.lib.bll.magen_user_api import MagenUserApi
 from id.id_service.magenid.idsapp.idsserver.lib.bll.magen_client_api import MagenClientApi
 
+from id.id_service.magenid.idsapp.idsserver.lib.bll.magen_user_api import MagenUserApi, verify_user
 
 MAGEN_USER = dict(
     user_uuid='test_uuid',
@@ -39,6 +40,8 @@ class TestMagenUserAPI(TestBasePyMongo):
         selected = self.user_api.get_user(MAGEN_USER['user_uuid'])
         self.assertFalse(selected.success)
         self.assertIsNone(selected.documents)
+        # test verify user
+        self.assertFalse(verify_user(MAGEN_USER['username']))
 
         # Inserting user into Database
         inserted = self.user_api.insert_user(MAGEN_USER)
@@ -48,6 +51,8 @@ class TestMagenUserAPI(TestBasePyMongo):
         selected = self.user_api.get_user(MAGEN_USER['user_uuid'])
         self.assertTrue(selected.success)
         self.assertEqual(selected.documents, MAGEN_USER)
+        # test verify user
+        self.assertTrue(verify_user(MAGEN_USER['username']))
 
         # Inserting same user again (uuid and e-mail should be unique)
         inserted = self.user_api.insert_user(MAGEN_USER)
@@ -174,7 +179,7 @@ class TestMagenUserAPI(TestBasePyMongo):
         self.assertTrue(selected.success)
         self.assertEqual(selected.documents['username'], 'test_new_username')
 
-        # Replace existing use with MAGEN_USER data
+        # Replace existing user with MAGEN_USER data
         replaced = self.user_api.replace_user(MAGEN_USER['user_uuid'], MAGEN_USER)
         self.assertTrue(replaced.success)
         # Verify username has changed

@@ -144,7 +144,7 @@ def add_magen_user_v3():
         if result.code == 11000:
             # Attempt to insert same data
             return partial_respond(http_status=HTTPStatus.BAD_REQUEST, response=dict(
-                success=success, cause=result.message, user=user_dict))
+                success=bool(success), cause=result.message, user=user_dict))
     except AttributeError as err:
         logger.error(err)
         return partial_respond(http_status=HTTPStatus.INTERNAL_SERVER_ERROR, response=dict(
@@ -194,7 +194,7 @@ def get_magen_user_v3(user_uuid):
     "title": "Get a Magen User Request"
     }
 
-    return: Response from server
+    :return: Response from server
     :rtype: JSON
     """
     partial_respond = functools.partial(RestServerApis.respond, title='Get a Magen User Request')
@@ -220,7 +220,7 @@ def get_magen_user_v3(user_uuid):
 @magen_user_bp.route(MAGEN_USER_URLS['users'])
 def get_magen_users():
     """
-    Get All registered Magen Users
+    GET REST request for All registered Magen Users
 
     URL: http://{host:port}/magen/id/v3/users/
 
@@ -306,6 +306,7 @@ def delete_magen_user_v3(user_uuid):
     partial_respond = functools.partial(RestServerApis.respond, title='Delete a Magen User Request')
     magen_user = MagenUserApi()
     try:
+        # TODO: make sure all clients get deleted with user
         result = magen_user.delete_user(user_uuid)
     except AttributeError as err:
         logger.error(err)

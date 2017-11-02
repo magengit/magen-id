@@ -12,11 +12,9 @@ def _update_user_data(user_data: dict):
     utc_now_timestamp = datetime.datetime.utcfromtimestamp(now_timestamp).timestamp()
     user_data['registered_on'] = user_data.get('registered_on', None) or int(utc_now_timestamp)
     user_data['u_groups'] = user_data.get('u_groups', None) or list()
-    # User registration happens before clients registration
-    user_data['u_clients'] = list()
+    user_data['u_clients'] = user_data.get('u_clients', None) or list()
     user_data['email_verified'] = True
-    if 'user_uuid' not in user_data:
-        user_data['user_uuid'] = str(uuid.uuid4())
+    user_data['user_uuid'] = user_data.get('user_uuid', None) or str(uuid.uuid4())
     return user_data
 
 
@@ -44,6 +42,8 @@ class MagenUserApi(object):
         :rtype: MongoReturn
         """
         user_data = _update_user_data(user_data)
+        # User registration happens before clients registration
+        user_data['u_clients'] = list()
         mongo_result = self.magen_user_strategy.insert(user_data)
         if not mongo_result.success:
             mongo_result.message = 'Magen User ID (user_uuid) and Username (username) must be unique!' \
@@ -139,9 +139,23 @@ class MagenUserApi(object):
         :return: response object
         :rtype: MongoReturn
         """
-        new_data['user_uuid'] = user_uuid
+        new_data['user_uuid'] = user_uuid  # user_uuid is no subject for change
         user_data = _update_user_data(new_data)
         seed = dict(user_uuid=user_uuid)
         result = self.magen_user_strategy.replace(seed, user_data)
         result.documents.pop('_id')
         return result
+
+
+def verify_user(username: str):
+    """
+    Verify that user with given username exists in Database
+
+    :param username: user's username
+    :type username: str
+
+    :rtype: bool
+    """
+    magen_user = MagenUserApi()
+    result = magen_user.get_user_by_name(username)
+    return result.success & result.count
