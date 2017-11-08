@@ -1,6 +1,10 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 import sys
+import os
 import pip
+
+with open(os.path.join(os.path.dirname(__file__), '__init__.py')) as version_file:
+    exec(version_file.read())
 
 if sys.version_info < (3, 5, 2):
     sys.exit("Sorry, you need Python 3.5.2+")
@@ -11,7 +15,7 @@ if pip_version < 901:
 
 setup(
     name='magen_id_service',
-    version='1.0a2',
+    version=__version__,
     packages={"id",
         "id.id_service", 
         "id.id_service.magenid",
