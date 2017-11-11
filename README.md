@@ -10,7 +10,16 @@ for managing client, user, group and token authorization.
 
 Supported key formats: JSON, JWT
 
-Current version: ```1.3a1```
+Current version: ```1.0a2```
+
+## Git clone
+
+All of Magen services depend on an operations git submodule [**magen_helper**](https://github.com/magengit/magen-helper).
+When cloning this repo, make sure to provide ```--recursive``` flag or after the clone execute a command to update ```magen-helpers``` git submodule:
+
+```
+git submodule update --init --recursive
+```
 
 For This Service there are available ```make``` commands. Makefile is located under [**id/**](id)
 
@@ -68,11 +77,11 @@ default:
 
 ## Sphinx Documentation SetUp
 
-There is a configured Sphinx API docs for the service. 
-To compile docs execute: 
+There is a configured Sphinx API docs for the service.
+To compile docs execute:
 
 ```make html``` in [```docs```](id/docs) directory
-    
+
 or run:
 
 ```make doc``` in the [```ingestion```](id) directory
@@ -87,7 +96,7 @@ or run:
 
 1. Open the bootstrap.json file with your preferred text editor
 2. Add/Remove the User and Group info
-3. Add/Remove items in the connected_apps. A sample connected app has been added. It can be used for running your "id_client_sample". If you change the host/port of the "id_client_sample" then you need to update the url under "redirect_uris". Also, make sure the "id_client_sample" uses the same "client_id", "client_secret". 
+3. Add/Remove items in the connected_apps. A sample connected app has been added. It can be used for running your "id_client_sample". If you change the host/port of the "id_client_sample" then you need to update the url under "redirect_uris". Also, make sure the "id_client_sample" uses the same "client_id", "client_secret".
 
 4. Open a Terminal. Navigate to the "id" directory, and run the following command:
 
@@ -108,4 +117,3 @@ $ make run_docker
 $ docker-compose up
 
 ```
-
