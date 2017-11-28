@@ -96,8 +96,7 @@ class MagenClientApi(object):
         :return: response object
         :rtype: MongoReturn object
         """
-        if 'mc_id' not in client_dict:
-            client_dict['mc_id'] = generate_magen_client_id(client_dict)
+        client_dict['mc_id'] = client_dict.get('mc_id', None) or generate_magen_client_id(client_dict)
         if not self._add_client_for_user(client_dict['user'], client_dict['mc_id']):
             # FIXME: Create own set of Exceptions
             raise ValueError('User is not Found for Client!')

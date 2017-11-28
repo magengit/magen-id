@@ -92,19 +92,19 @@ from id.id_service.magenid.idsapp.idsserver.lib.db.mongo_magen_user_dao import M
 
 from id.id_service.magenid.idsapp.idsserver.rest.magen_user_rest_api import magen_user_bp
 from id.id_service.magenid.idsapp.idsserver.rest.magen_group_rest_api import magen_user_group_bp
-# from id.id_service.magenid.idsapp.idsserver.rest.magen_client_rest_api import magen_client_bp
+from id.id_service.magenid.idsapp.idsserver.rest.magen_client_rest_api import magen_client_bp
 
 from magen_utils_apis import domain_resolver
 
 
 def new_db_init():
-    mongo_ip, mongo_port = domain_resolver.mongo_host_port()
+    mongo_ip, m_port = domain_resolver.mongo_host_port()
     db = IdDatabase()
     db.id_service_db = MongoId.get_instance()
-    # db.id_service_db.magen_client_strategy = MongoMagenClient.get_instance()
+    db.id_service_db.magen_client_strategy = MongoMagenClient.get_instance()
     db.id_service_db.magen_user_group_strategy = MongoMagenUserGroup.get_instance()
     db.id_service_db.magen_user_strategy = MongoMagenUser.get_instance()
-    db.id_service_db.initialize(host=mongo_ip, port=mongo_port, db_name=DB_NAME)
+    db.id_service_db.initialize(host=mongo_ip, port=m_port, db_name=DB_NAME)
 
 if args.test:
     ids.config['MODE'] = "test"
@@ -151,7 +151,7 @@ else:
         dic = get_user_dic(user["username"], user["email"], str(uuid.uuid4()), user["firstName"], user["lastName"],
                        user["password"], user["userGroup"],
                        [], user["u_groups"], user["idp"], user["type"], user["type"], user["firstName"] + " " + user["lastName"], True,user["imgSrc"])
-   
+
         userdao.saveForMappingUser(dic)
     for conapp in data["connected_apps"]:
         # insert sample_oauth_client into mongo database
@@ -198,7 +198,7 @@ else:
 
     ids.register_blueprint(magen_user_bp)
     ids.register_blueprint(magen_user_group_bp)
-    # ids.register_blueprint(magen_client_bp)
+    ids.register_blueprint(magen_client_bp)
     context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
     context.load_cert_chain('/etc/ssl/certs/server.crt', '/etc/ssl/certs/server.key')
     ids.run(host='0.0.0.0', debug=True, port=SERVER_PORT, threaded=True, ssl_context=context)
