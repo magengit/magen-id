@@ -260,12 +260,13 @@ class TestMagenClientREST(TestBasePyMongo):
         # Create a user
         self._create_user()
 
+        # POSTing a client
         post_resp_obj = self.test_id_app.post(
             MAGEN_CLIENTS_URLS['base_v3'] + MAGEN_CLIENTS_URLS['client'],
             headers=RestClientApis.put_json_headers,
             data=MAGEN_CLIENT
         )
-        # Verify the user was created
+        # Verify the client was created
         self.assertEqual(post_resp_obj.status_code, HTTPStatus.CREATED)
         post_resp_data = json.loads(post_resp_obj.data.decode())
         test_mc_id = post_resp_data['response']['client']['mc_id']
@@ -334,7 +335,7 @@ class TestMagenClientREST(TestBasePyMongo):
             headers=RestClientApis.put_json_headers,
             data=MAGEN_CLIENT
         )
-        # Verify the user was created
+        # Verify the client was created
         self.assertEqual(post_resp_obj.status_code, HTTPStatus.CREATED)
 
         # GET clients
@@ -350,7 +351,7 @@ class TestMagenClientREST(TestBasePyMongo):
         self.assertEqual(len(client_list), 1)
 
     @patch('id.id_service.magenid.idsapp.idsserver.lib.bll.magen_client_api.MagenClientApi.get_all')
-    def test_get_users_attrerror(self, attr_error_mock):
+    def test_get_clients_attrerror(self, attr_error_mock):
         """
         Test GET Magen Clients through REST generated 500 error
             o: database connection failed or was not initialized properly (Attribute Error)
@@ -365,7 +366,7 @@ class TestMagenClientREST(TestBasePyMongo):
         self.assertEqual(get_resp_data['response']['cause'], SERVER_500_ATTR_CAUSE)
 
     @patch('id.id_service.magenid.idsapp.idsserver.lib.bll.magen_client_api.MagenClientApi.get_all')
-    def test_get_users_genrerror(self, gen_exception_mock):
+    def test_get_clients_genrerror(self, gen_exception_mock):
         """
         Test GET Magen Clients through REST generated 500 error
             o: general Exception wrapped into Response object and returned to the client
@@ -379,4 +380,72 @@ class TestMagenClientREST(TestBasePyMongo):
         get_resp_data = json.loads(get_resp_obj.data.decode())
         self.assertEqual(get_resp_data['response']['cause'], SERVER_500_GEN_CAUSE)
 
+    def test_delete_client_OK(self):
+        """
+        Test Delete Magen Client by mc_id (magen client id)
+        Test contains 2 cases:
+            o: Delete non-existing client (OK http status, different cause)
+            o: POST a client and Delete client by mc_id (OK http status)
+        """
+        # Get non-existing client
+        delete_resp_obj = self.test_id_app.delete(
+            MAGEN_CLIENTS_URLS['base_v3'] + MAGEN_CLIENTS_URLS['mc_id'].format('some_id'),
+            headers=RestClientApis.get_json_headers
+        )
+        self.assertEqual(delete_resp_obj.status_code, HTTPStatus.OK)
+        delete_resp_data = json.loads(delete_resp_obj.data.decode())
+        self.assertTrue(delete_resp_data['response']['success'])
+        self.assertIn('not exist', delete_resp_data['response']['cause'])
 
+        # Create a user
+        self._create_user()
+
+        # POSTing a client
+        post_resp_obj = self.test_id_app.post(
+            MAGEN_CLIENTS_URLS['base_v3'] + MAGEN_CLIENTS_URLS['client'],
+            headers=RestClientApis.put_json_headers,
+            data=MAGEN_CLIENT
+        )
+        # Verify the client was created
+        self.assertEqual(post_resp_obj.status_code, HTTPStatus.CREATED)
+        post_resp_data = json.loads(post_resp_obj.data.decode())
+        test_mc_id = post_resp_data['response']['client']['mc_id']
+
+        delete_resp_obj = self.test_id_app.delete(
+            MAGEN_CLIENTS_URLS['base_v3'] + MAGEN_CLIENTS_URLS['mc_id'].format(test_mc_id),
+            headers=RestClientApis.get_json_headers
+        )
+        self.assertEqual(delete_resp_obj.status_code, HTTPStatus.OK)
+        delete_resp_data = json.loads(delete_resp_obj.data.decode())
+        self.assertTrue(delete_resp_data['response']['success'])
+        self.assertEqual(delete_resp_data['response']['client']['removed'], 1)
+
+    @patch('id.id_service.magenid.idsapp.idsserver.lib.bll.magen_client_api.MagenClientApi.delete_client')
+    def test_delete_client_attrerror(self, attr_error_mock):
+        """
+        Test DELETE Magen Clients through REST generated 500 error
+            o: database connection failed or was not initialized properly (Attribute Error)
+        """
+        attr_error_mock.side_effect = AttributeError('\n' + __name__ + '.AttributeError\n')
+        delete_resp_obj = self.test_id_app.delete(
+            MAGEN_CLIENTS_URLS['base_v3'] + MAGEN_CLIENTS_URLS['mc_id'].format(TEST_MC_ID),
+            headers=RestClientApis.get_json_headers
+        )
+        self.assertEqual(delete_resp_obj.status_code, HTTPStatus.INTERNAL_SERVER_ERROR)
+        delete_resp_data = json.loads(delete_resp_obj.data.decode())
+        self.assertEqual(delete_resp_data['response']['cause'], SERVER_500_ATTR_CAUSE)
+
+    @patch('id.id_service.magenid.idsapp.idsserver.lib.bll.magen_client_api.MagenClientApi.delete_client')
+    def test_delete_client_genrerror(self, gen_exception_mock):
+        """
+        Test DELETE Magen Clients through REST generated 500 error
+            o: general Exception wrapped into Response object and returned to the client
+        """
+        gen_exception_mock.side_effect = Exception('\n' + __name__ + '.GeneralException\n')
+        delete_resp_obj = self.test_id_app.delete(
+            MAGEN_CLIENTS_URLS['base_v3'] + MAGEN_CLIENTS_URLS['mc_id'].format(TEST_MC_ID),
+            headers=RestClientApis.get_json_headers
+        )
+        self.assertEqual(delete_resp_obj.status_code, HTTPStatus.INTERNAL_SERVER_ERROR)
+        delete_resp_data = json.loads(delete_resp_obj.data.decode())
+        self.assertEqual(delete_resp_data['response']['cause'], SERVER_500_GEN_CAUSE)

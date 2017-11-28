@@ -212,7 +212,6 @@ def delete_magen_client_v3(magen_client_id):
     partial_respond = functools.partial(RestServerApis.respond, title='Delete a Magen Client Request')
     magen_client = MagenClientApi()
     try:
-        # TODO: make sure client gets removed from user entry
         result = magen_client.delete_client(magen_client_id)
     except AttributeError as err:
         logger.error(err)
