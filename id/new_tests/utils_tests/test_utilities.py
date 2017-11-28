@@ -5,7 +5,6 @@ import unittest
 import typing
 import datetime
 import socket
-from unittest import expectedFailure
 
 from mock import Mock
 from freezegun import freeze_time
